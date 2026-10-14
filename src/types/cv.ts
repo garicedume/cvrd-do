@@ -1,6 +1,6 @@
 // src/types/cv.ts
 
-export type FontFamilyType = string;
+export type FontFamilyType = 'Poppins' | 'Inter' | 'Roboto' | 'Merriweather' | 'Playfair' | 'Lato' | string;
 
 export interface PersonalInfo {
   fullName: string;
@@ -14,6 +14,10 @@ export interface PersonalInfo {
   photoUrl: string;
   photoShape: 'circle' | 'square' | 'rounded';
   showPhoto: boolean;
+  // Aliases de compatibilidad para CVContext
+  professionalTitle?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface ExtrasInfo {
@@ -28,14 +32,15 @@ export interface ExtrasInfo {
 
 export interface Experience {
   id: string;
-  role: string;
   company: string;
+  role: string;
   startDate: string;
   endDate: string;
   description: string;
-  // Campos opcionales por compatibilidad con respuestas de IA
+  // Compatibilidad con respuestas de IA o componentes legados
   position?: string;
   responsibilities?: string[];
+  current?: boolean;
 }
 
 export interface Education {
@@ -44,6 +49,7 @@ export interface Education {
   institution: string;
   startDate: string;
   endDate: string;
+  current?: boolean;
 }
 
 export interface Skill {
@@ -51,6 +57,7 @@ export interface Skill {
   name: string;
   type: 'técnica' | 'blanda' | string;
   category?: string;
+  level?: string;
 }
 
 export interface Language {
@@ -88,6 +95,7 @@ export interface Project {
 }
 
 export interface CVData {
+  // --- Estructura Principal original ---
   personal: PersonalInfo;
   profile: string;
   experience: Experience[];
@@ -100,15 +108,18 @@ export interface CVData {
     fontFamily: string;
     accentColor: string;
   };
-  // Propiedades opcionales para soportar el parser de Gemini / Linter
+
+  // --- Propiedades requeridas por StyleControls, CVContext y Parser IA ---
+  fontFamily?: FontFamilyType;
+  colorScheme?: string;
   contact?: PersonalInfo;
   summary?: string;
   experiences?: Experience[];
   certifications?: Certification[];
   projects?: Project[];
-  fontFamily?: string;
-  colorScheme?: string;
   templateId?: string;
+  id?: string;
+  title?: string;
 }
 
 export const INITIAL_CV_DATA: CVData = {
