@@ -28,17 +28,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isB2B, setIsB2B] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const checkB2BStatus = (currentUser: User | null) => {
+    if (!currentUser) return false;
+    const metadata = currentUser.user_metadata;
+    // Comprobar tanto el flag is_b2b: true como el rol anterior
+    return Boolean(
+      metadata?.is_b2b === true || 
+      metadata?.role === 'b2b_agency' || 
+      metadata?.role === 'enterprise'
+    );
+  };
+
   useEffect(() => {
     const getInitialSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      
-      if (data.session?.user) {
-        const role = data.session.user.user_metadata?.role;
-        setIsB2B(role === 'b2b_agency' || role === 'enterprise');
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        setIsB2B(checkB2BStatus(data.session?.user ?? null));
+      } catch (err) {
+        console.error('Error al obtener sesión:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getInitialSession();
@@ -46,13 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-
-      if (currentSession?.user) {
-        const role = currentSession.user.user_metadata?.role;
-        setIsB2B(role === 'b2b_agency' || role === 'enterprise');
-      } else {
-        setIsB2B(false);
-      }
+      setIsB2B(checkB2BStatus(currentSession?.user ?? null));
       setLoading(false);
     });
 
@@ -72,8 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (data.user) {
-      const role = data.user.user_metadata?.role;
-      setIsB2B(role === 'b2b_agency' || role === 'enterprise');
+      setUser(data.user);
+      setIsB2B(checkB2BStatus(data.user));
     }
 
     return { error: null };
