@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { Building2, Lock, ArrowRight, CheckCircle2, LogOut, FileCheck } from 'lucide-react';
+import { Building2, Lock, ArrowRight, CheckCircle2, LogOut, FileCheck, ShieldCheck, RefreshCw } from 'lucide-react';
 
 export default function AccesoSeguroPage() {
   const { user, isB2B, loginB2B, logout, loading } = useAuth();
@@ -13,16 +13,57 @@ export default function AccesoSeguroPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- Detección Anti-Robot (Captcha Matemático) ---
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+
+  const generateCaptcha = useCallback(() => {
+    setNum1(Math.floor(Math.random() * 9) + 1);
+    setNum2(Math.floor(Math.random() * 9) + 1);
+    setCaptchaAnswer('');
+  }, []);
+
+  useEffect(() => {
+    // Inicializar captcha fuera de ciclos de renderizado directo bloqueantes
+    const timer = setTimeout(() => {
+      generateCaptcha();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [generateCaptcha]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    // 1. Validar Anti-Robot
+    if (parseInt(captchaAnswer, 10) !== num1 + num2) {
+      setErrorMsg('Respuesta Anti-Robot incorrecta. Por favor intenta de nuevo.');
+      generateCaptcha();
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const result = await loginB2B(email, password);
-    setIsSubmitting(false);
+    try {
+      // 2. Ejecutar autenticación con timeout de seguridad
+      const loginPromise = loginB2B(email, password);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Tiempo de espera agotado. Verifica tu conexión.')), 10000)
+      );
 
-    if (result.error) {
-      setErrorMsg('Credenciales inválidas o cuenta no registrada como B2B.');
+      const result = (await Promise.race([loginPromise, timeoutPromise])) as { error?: unknown };
+
+      if (result?.error) {
+        setErrorMsg('Credenciales inválidas o la cuenta no está registrada con permisos B2B.');
+        generateCaptcha();
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error al procesar el inicio de sesión.';
+      setErrorMsg(errorMessage);
+      generateCaptcha();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -126,7 +167,6 @@ export default function AccesoSeguroPage() {
               </ul>
             </div>
 
-            {/* Texto en dos líneas tal como lo pediste */}
             <div className="pt-6 border-t border-gray-800 text-xs text-gray-400 space-y-1">
               <p>¿Deseas registrar tu centro de internet o agencia?</p>
               <a href="mailto:nubellstore@gmail.com" className="text-amber-400 font-bold underline select-text inline-block">
@@ -172,9 +212,39 @@ export default function AccesoSeguroPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs text-gray-900 focus:outline-none focus:border-amber-400 focus:bg-white transition-all select-text"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs text-gray-900 focus:outline-none focus:border-amber-400 focus:bg-white transition-all select-none"
                   />
                   <Lock className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              {/* Módulo Anti-Robot */}
+              <div className="p-3.5 bg-amber-50/50 border border-amber-200/80 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1">
+                    <ShieldCheck className="w-4 h-4 text-amber-600" /> Verificación Anti-Robot
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={generateCaptcha}
+                    className="text-gray-400 hover:text-amber-600 transition"
+                    title="Cambiar operación"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-gray-900 bg-white border border-gray-200 px-3 py-2 rounded-xl">
+                    ¿Cuánto es {num1} + {num2}?
+                  </span>
+                  <input
+                    type="number"
+                    required
+                    placeholder="Resultado"
+                    value={captchaAnswer}
+                    onChange={(e) => setCaptchaAnswer(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-amber-400"
+                  />
                 </div>
               </div>
 

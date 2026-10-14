@@ -1,17 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Omitir verificaciones bloqueantes para despliegue inmediato en Vercel
+  // Ignorar errores de TypeScript durante el build de producción
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 
-  // Desactiva mapas de código en producción para proteger el código fuente
+  // Opciones de seguridad y optimización
   productionBrowserSourceMaps: false,
-  // Oculta la cabecera 'X-Powered-By: Next.js' por seguridad
   poweredByHeader: false,
   reactStrictMode: true,
 
