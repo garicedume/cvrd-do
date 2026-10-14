@@ -11,18 +11,15 @@ export async function middleware(req: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-  // Bloqueo estricto de VPN/Proxy en endpoints de pagos o acciones críticas de usuarios
+  // Filtro estricto únicamente para tráfico anónimo explícito de Cloudflare (Tor/Anonymous Proxies)
   const pathname = req.nextUrl.pathname;
   if (pathname.startsWith('/api/')) {
-    const isVpnOrProxy = 
-      req.headers.get('x-vercel-proxied-for') || 
-      req.headers.get('x-vpn-detected') ||
-      req.headers.get('cf-ipcountry') === 'T1'; // Detección de Tor/Proxy genérico en CDNs
+    const isTorOrAnonymized = req.headers.get('cf-ipcountry') === 'T1';
     
-    if (isVpnOrProxy) {
+    if (isTorOrAnonymized) {
       return new NextResponse(
         JSON.stringify({ 
-          error: 'Acceso denegado: Por políticas de seguridad bancaria, no se permiten conexiones VPN, Proxies o redes anónimas para procesar operaciones.' 
+          error: 'Acceso denegado: Red anónima detectada.' 
         }),
         { status: 403, headers: { 'content-type': 'application/json' } }
       );
