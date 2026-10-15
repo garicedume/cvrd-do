@@ -68,21 +68,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loginB2B = async (email: string, pass: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    });
+    console.log("-> [AuthContext] Intentando iniciar sesión con:", email);
 
-    if (error) {
-      return { error: error.message };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: pass,
+      });
+
+      console.log("-> [AuthContext] Respuesta Supabase Data:", data);
+      console.log("-> [AuthContext] Respuesta Supabase Error:", error);
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      if (data.user) {
+        setUser(data.user);
+        setIsB2B(checkB2BStatus(data.user));
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      console.error("-> [AuthContext] Error crítico en loginB2B:", err);
+      return { error: err.message || 'Error de conexión' };
     }
-
-    if (data.user) {
-      setUser(data.user);
-      setIsB2B(checkB2BStatus(data.user));
-    }
-
-    return { error: null };
   };
 
   const logout = async () => {
