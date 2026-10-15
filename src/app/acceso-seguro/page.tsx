@@ -13,6 +13,16 @@ export default function AccesoSeguroPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- Timeout de seguridad para evitar bucle infinito de carga visual ---
+  const [forceReady, setForceReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setForceReady(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // --- Detección Anti-Robot (Captcha Matemático) ---
   const [num1, setNum1] = useState(0);
   const [num2, setNum2] = useState(0);
@@ -25,7 +35,6 @@ export default function AccesoSeguroPage() {
   }, []);
 
   useEffect(() => {
-    // Inicializar captcha fuera de ciclos de renderizado directo bloqueantes
     const timer = setTimeout(() => {
       generateCaptcha();
     }, 0);
@@ -67,7 +76,7 @@ export default function AccesoSeguroPage() {
     }
   };
 
-  if (loading) {
+  if (loading && !forceReady) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center font-poppins select-none">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-amber-400"></div>
