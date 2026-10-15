@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { INITIAL_CV_DATA, CVData } from '@/types/cv';
 import TemplateLaura from '@/components/templates/basicos/TemplateLaura';
@@ -13,10 +13,33 @@ function BuilderContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // 1. Datos del CV
-  const [cvData, setCvData] = useState<CVData>(INITIAL_CV_DATA);
+  // 1. Datos del CV con Autoguardado Local (Protección ante apagones, F5 o pérdida de internet)
+  const [cvData, setCvData] = useState<CVData>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedData = localStorage.getItem('cvrd_saved_cv_data');
+        if (savedData) {
+          return JSON.parse(savedData);
+        }
+      } catch (e) {
+        console.error('Error al cargar datos guardados:', e);
+      }
+    }
+    return INITIAL_CV_DATA;
+  });
+
   const [activeTab, setActiveTab] = useState<number>(1);
   
+  // --- AUTOGUARDADO AUTOMÁTICO EN SEGUNDO PLANO ---
+  useEffect(() => {
+    try {
+      localStorage.setItem('cvrd_saved_cv_data', JSON.stringify(cvData));
+    } catch (e) {
+      console.error('Error al guardar datos automáticamente:', e);
+    }
+  }, [cvData]);
+  // ------------------------------------------------
+
   // 2. Lectura directa de la plantilla desde la URL
   const templateFromUrl = searchParams.get('template');
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>(

@@ -1,6 +1,52 @@
 import React from 'react';
 import { CVData } from '../types/cv';
+
+// --- IMPORTACIONES DE CARPETA BÁSICOS ---
 import TemplateLaura from '../components/templates/basicos/TemplateLaura';
+import TemplateAcademicResearch from '../components/templates/basicos/TemplateAcademicResearch';
+import TemplateAtsClassic from '../components/templates/basicos/TemplateAtsClassic';
+import TemplateAtsMinimal from '../components/templates/basicos/TemplateAtsMinimal';
+import TemplateCharcoalCompact from '../components/templates/basicos/TemplateCharcoalCompact';
+import TemplateCommercialSales from '../components/templates/basicos/TemplateCommercialSales';
+import TemplateCorporateStandard from '../components/templates/basicos/TemplateCorporateStandard';
+import TemplateCustomerCare from '../components/templates/basicos/TemplateCustomerCare';
+import TemplateExecutiveClean from '../components/templates/basicos/TemplateExecutiveClean';
+import TemplateFinanceStrict from '../components/templates/basicos/TemplateFinanceStrict';
+import TemplateLegalStructural from '../components/templates/basicos/TemplateLegalStructural';
+import TemplateMinimalistLine from '../components/templates/basicos/TemplateMinimalistLine';
+import TemplateModernGrid from '../components/templates/basicos/TemplateModernGrid';
+import TemplateMultisectorBase from '../components/templates/basicos/TemplateMultisectorBase';
+import TemplateOperationalPro from '../components/templates/basicos/TemplateOperationalPro';
+import TemplateTechFocused from '../components/templates/basicos/TemplateTechFocused';
+
+// --- IMPORTACIONES DE CARPETA MASTER ---
+import TemplateMasterApexExecutive from '../components/templates/master/TemplateMasterApexExecutive';
+import TemplateMasterChiefInnovator from '../components/templates/master/TemplateMasterChiefInnovator';
+import TemplateMasterCreativeVision from '../components/templates/master/TemplateMasterCreativeVision';
+import TemplateMasterCsuiteSignature from '../components/templates/master/TemplateMasterCsuiteSignature';
+import TemplateMasterEliteArchitect from '../components/templates/master/TemplateMasterEliteArchitect';
+import TemplateMasterEnterpriseLead from '../components/templates/master/TemplateMasterEnterpriseLead';
+import TemplateMasterGlobalDirector from '../components/templates/master/TemplateMasterGlobalDirector';
+import TemplateMasterLegacyExecutive from '../components/templates/master/TemplateMasterLegacyExecutive';
+import TemplateMasterMasterpiecePrint from '../components/templates/master/TemplateMasterMasterpiecePrint';
+import TemplateMasterPinnacleGrid from '../components/templates/master/TemplateMasterPinnacleGrid';
+import TemplateMasterPrestigeBoutique from '../components/templates/master/TemplateMasterPrestigeBoutique';
+import TemplateMasterQuantumData from '../components/templates/master/TemplateMasterQuantumData';
+import TemplateMasterSiliconValley from '../components/templates/master/TemplateMasterSiliconValley';
+import TemplateMasterVentureCapital from '../components/templates/master/TemplateMasterVentureCapital';
+import TemplateMasterVisionaryImpact from '../components/templates/master/TemplateMasterVisionaryImpact';
+
+// --- IMPORTACIONES DE CARPETA PREMIUM ---
+import TemplateBrandDesigner from '../components/templates/premium/TemplateBrandDesigner';
+import TemplateConsultingSenior from '../components/templates/premium/TemplateConsultingSenior';
+import TemplateCreativeDirector from '../components/templates/premium/TemplateCreativeDirector';
+import TemplateDataScienceElite from '../components/templates/premium/TemplateDataScienceElite';
+import TemplateExecutiveLeadership from '../components/templates/premium/TemplateExecutiveLeadership';
+import TemplateFullStackArchitect from '../components/templates/premium/TemplateFullStackArchitect';
+import TemplateMarketingGrowth from '../components/templates/premium/TemplateMarketingGrowth';
+import TemplateOperationsDirector from '../components/templates/premium/TemplateOperationsDirector';
+import TemplateProductManager from '../components/templates/premium/TemplateProductManager';
+import TemplateTechLeadPro from '../components/templates/premium/TemplateTechLeadPro';
 
 export const SAMPLE_CV_DATA: CVData = {
   personal: {
@@ -88,52 +134,52 @@ export const SAMPLE_CV_DATA: CVData = {
 export const TEMPLATE_COMPONENTS: Record<string, React.FC<{ data: CVData }>> = {
   // Básicos
   TemplateLaura: TemplateLaura as React.FC<{ data: CVData }>,
-  AcademicResearchTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  ATSDirectClassicTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  ATSMinimalTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  CharcoalCompactTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  CommercialSalesTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  CustomerCareTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  EmeraldCleanTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  HospitalityTourismTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  LegalCounselTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  LogisticsProTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  MedicalHealthTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  NavyCorporateTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  OperationsLeadTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  SlateModernTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  TechDeveloperTemplate: TemplateLaura as React.FC<{ data: CVData }>,
+  AcademicResearchTemplate: TemplateAcademicResearch as React.FC<{ data: CVData }>,
+  TemplateAtsClassic: TemplateAtsClassic as React.FC<{ data: CVData }>,
+  TemplateAtsMinimal: TemplateAtsMinimal as React.FC<{ data: CVData }>,
+  TemplateCharcoalCompact: TemplateCharcoalCompact as React.FC<{ data: CVData }>,
+  TemplateCommercialSales: TemplateCommercialSales as React.FC<{ data: CVData }>,
+  TemplateCorporateStandard: TemplateCorporateStandard as React.FC<{ data: CVData }>,
+  TemplateCustomerCare: TemplateCustomerCare as React.FC<{ data: CVData }>,
+  TemplateExecutiveClean: TemplateExecutiveClean as React.FC<{ data: CVData }>,
+  TemplateFinanceStrict: TemplateFinanceStrict as React.FC<{ data: CVData }>,
+  TemplateLegalStructural: TemplateLegalStructural as React.FC<{ data: CVData }>,
+  TemplateMinimalistLine: TemplateMinimalistLine as React.FC<{ data: CVData }>,
+  TemplateModernGrid: TemplateModernGrid as React.FC<{ data: CVData }>,
+  TemplateMultisectorBase: TemplateMultisectorBase as React.FC<{ data: CVData }>,
+  TemplateOperationalPro: TemplateOperationalPro as React.FC<{ data: CVData }>,
+  TemplateTechFocused: TemplateTechFocused as React.FC<{ data: CVData }>,
 
   // Premium
-  CorporateArchTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  DarkMonolithTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  ExecutiveGoldTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  FintechAnalyticsTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  MinimalLuxeTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  NordicMinimalTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  PortfolioShowcaseTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  SeniorConsultantTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  StrategicDirectorTemplate: TemplateLaura as React.FC<{ data: CVData }>,
-  StudioHorizonTemplate: TemplateLaura as React.FC<{ data: CVData }>,
+  TemplateBrandDesigner: TemplateBrandDesigner as React.FC<{ data: CVData }>,
+  TemplateConsultingSenior: TemplateConsultingSenior as React.FC<{ data: CVData }>,
+  TemplateCreativeDirector: TemplateCreativeDirector as React.FC<{ data: CVData }>,
+  TemplateDataScienceElite: TemplateDataScienceElite as React.FC<{ data: CVData }>,
+  TemplateExecutiveLeadership: TemplateExecutiveLeadership as React.FC<{ data: CVData }>,
+  TemplateFullStackArchitect: TemplateFullStackArchitect as React.FC<{ data: CVData }>,
+  TemplateMarketingGrowth: TemplateMarketingGrowth as React.FC<{ data: CVData }>,
+  TemplateOperationsDirector: TemplateOperationsDirector as React.FC<{ data: CVData }>,
+  TemplateProductManager: TemplateProductManager as React.FC<{ data: CVData }>,
+  TemplateTechLeadPro: TemplateTechLeadPro as React.FC<{ data: CVData }>,
 
   // Master (15 plantillas)
-  TemplateMasterApexExecutive: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterSiliconValley: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterGlobalDirector: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterCreativeVision: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterVentureCapital: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterQuantumData: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterCsuiteSignature: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterEliteArchitect: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterChiefInnovator: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterMasterpiecePrint: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterPrestigeBoutique: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterEnterpriseLead: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterVisionaryImpact: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterPinnacleGrid: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateMasterLegacyExecutive: TemplateLaura as React.FC<{ data: CVData }>,
+  TemplateMasterApexExecutive: TemplateMasterApexExecutive as React.FC<{ data: CVData }>,
+  TemplateMasterSiliconValley: TemplateMasterSiliconValley as React.FC<{ data: CVData }>,
+  TemplateMasterGlobalDirector: TemplateMasterGlobalDirector as React.FC<{ data: CVData }>,
+  TemplateMasterCreativeVision: TemplateMasterCreativeVision as React.FC<{ data: CVData }>,
+  TemplateMasterVentureCapital: TemplateMasterVentureCapital as React.FC<{ data: CVData }>,
+  TemplateMasterQuantumData: TemplateMasterQuantumData as React.FC<{ data: CVData }>,
+  TemplateMasterCsuiteSignature: TemplateMasterCsuiteSignature as React.FC<{ data: CVData }>,
+  TemplateMasterEliteArchitect: TemplateMasterEliteArchitect as React.FC<{ data: CVData }>,
+  TemplateMasterChiefInnovator: TemplateMasterChiefInnovator as React.FC<{ data: CVData }>,
+  TemplateMasterMasterpiecePrint: TemplateMasterMasterpiecePrint as React.FC<{ data: CVData }>,
+  TemplateMasterPrestigeBoutique: TemplateMasterPrestigeBoutique as React.FC<{ data: CVData }>,
+  TemplateMasterEnterpriseLead: TemplateMasterEnterpriseLead as React.FC<{ data: CVData }>,
+  TemplateMasterVisionaryImpact: TemplateMasterVisionaryImpact as React.FC<{ data: CVData }>,
+  TemplateMasterPinnacleGrid: TemplateMasterPinnacleGrid as React.FC<{ data: CVData }>,
+  TemplateMasterLegacyExecutive: TemplateMasterLegacyExecutive as React.FC<{ data: CVData }>,
 
-  // Extras
+  // Extras (Respaldo temporal con Laura)
   ExtraStandard01: TemplateLaura as React.FC<{ data: CVData }>,
   ExtraStandard02: TemplateLaura as React.FC<{ data: CVData }>,
   ExtraStandard03: TemplateLaura as React.FC<{ data: CVData }>,
