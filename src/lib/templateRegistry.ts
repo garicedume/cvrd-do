@@ -134,8 +134,8 @@ export const SAMPLE_CV_DATA: CVData = {
 export const TEMPLATE_COMPONENTS: Record<string, React.FC<{ data: CVData }>> = {
   // Básicos
   TemplateLaura: TemplateLaura as React.FC<{ data: CVData }>,
-  TemplateAcademicResearch: TemplateAcademicResearch as React.FC<{ data: CVData }>,
-  AcademicResearchTemplate: TemplateAcademicResearch as React.FC<{ data: CVData }>,
+  AcademicResearchTemplate: TemplateAcademicResearch as React.FC<{ data: CVData }>, // <-- AQUÍ ESTABA LA CLAVE EXACTA DE TEMPLATESDATA
+  TemplateAcademicResearch: TemplateAcademicResearch as React.FC<{ data: CVData }>, // <-- Alias por seguridad
   TemplateAtsClassic: TemplateAtsClassic as React.FC<{ data: CVData }>,
   TemplateAtsMinimal: TemplateAtsMinimal as React.FC<{ data: CVData }>,
   TemplateCharcoalCompact: TemplateCharcoalCompact as React.FC<{ data: CVData }>,
