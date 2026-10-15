@@ -5,15 +5,19 @@ interface Props {
   data: CVData;
 }
 
+interface CustomLink {
+  label?: string;
+  url?: string;
+  urlLine2?: string;
+}
+
 export default function TemplateLaura({ data }: Props) {
   const { personal, profile, experience, education, skills, languages, references, extras, styles } = data;
 
-  // Clases dinámicas para la forma de la foto con tamaño exacto de 156px x 156px
   const photoShapeClass = 
     personal.photoShape === 'circle' ? 'rounded-full' :
     personal.photoShape === 'rounded' ? 'rounded-3xl' : 'rounded-none';
 
-  // Separación de nombre y apellido para aplicar Bold y Regular
   const fullNameStr = personal?.fullName || '';
   const nameParts = fullNameStr.trim().split(' ');
   const firstName = nameParts[0] || '';
@@ -28,7 +32,6 @@ export default function TemplateLaura({ data }: Props) {
         fontFamily: styles?.fontFamily || 'Poppins, sans-serif'
       }}
     >
-      {/* ÁREA SEGURA CON MARGEN PERIMETRAL DE 48px (0.5 in) */}
       <div 
         className="absolute box-border flex flex-col justify-between"
         style={{
@@ -38,7 +41,6 @@ export default function TemplateLaura({ data }: Props) {
           bottom: '48px',
         }}
       >
-        {/* ENCABEZADO SUPERIOR: NOMBRE HORIZONTAL (55px) + FOTO (156x156px) */}
         <div className="flex justify-between items-center border-b pb-6 mb-4">
           <div className="flex flex-col justify-center">
             <h1 className="tracking-tight leading-none flex flex-wrap gap-x-3 items-baseline" style={{ fontSize: '55px' }}>
@@ -55,6 +57,7 @@ export default function TemplateLaura({ data }: Props) {
               style={{ width: '156px', height: '156px' }}
             >
               {personal?.photoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={personal.photoUrl} alt="Perfil" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-xs text-gray-500 font-bold">FOTO 156x156</span>
@@ -63,17 +66,11 @@ export default function TemplateLaura({ data }: Props) {
           )}
         </div>
 
-        {/* CUERPO A DOS COLUMNAS */}
         <div className="grid grid-cols-12 gap-8 flex-1">
-          
-          {/* COLUMNA IZQUIERDA (Contacto flexible, Habilidades, Idiomas) */}
           <div className="col-span-4 flex flex-col border-r pr-6 border-gray-200" style={{ gap: '35px' }}>
-            
-            {/* 1. CONTACTO Y EXTRAS FLEXIBLES */}
             <div className="text-xs">
               <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-2 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Contacto</h3>
               
-              {/* Teléfonos */}
               {personal?.phone && (
                 <p className="mb-1 text-gray-700 break-all">📞 {personal.phone}</p>
               )}
@@ -81,7 +78,6 @@ export default function TemplateLaura({ data }: Props) {
                 <p className="mb-1 text-gray-500 break-all">📞 {personal.secondaryPhone}</p>
               )}
 
-              {/* Correos */}
               {personal?.email && (
                 <p className="mb-1 text-gray-700 break-all">✉️ {personal.email}</p>
               )}
@@ -89,7 +85,6 @@ export default function TemplateLaura({ data }: Props) {
                 <p className="mb-1 text-gray-500 break-all">✉️ {personal.secondaryEmail}</p>
               )}
 
-              {/* Dirección en 2 líneas */}
               {personal?.location && (
                 <p className="mb-1 text-gray-700">📍 {personal.location}</p>
               )}
@@ -97,9 +92,8 @@ export default function TemplateLaura({ data }: Props) {
                 <p className="mb-1 text-gray-500 pl-4">{personal.locationLine2}</p>
               )}
 
-              {/* Enlaces y Extras Personalizados (LinkedIn, Behance, Portafolio, etc. con soporte a 2 líneas) */}
               {extras?.customLinks && Array.isArray(extras.customLinks) && extras.customLinks.length > 0 ? (
-                extras.customLinks.map((link: any, idx: number) => (
+                (extras.customLinks as CustomLink[]).map((link, idx) => (
                   <div key={idx} className="mb-1 text-gray-700 break-all">
                     <span className="font-bold text-gray-900 block">🔗 {link?.label || 'Enlace'}:</span>
                     <span className="block">{link?.url}</span>
@@ -114,7 +108,6 @@ export default function TemplateLaura({ data }: Props) {
               )}
             </div>
 
-            {/* 2. HABILIDADES */}
             {skills && skills.length > 0 && (
               <div className="text-xs">
                 <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-2 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Habilidades</h3>
@@ -126,7 +119,6 @@ export default function TemplateLaura({ data }: Props) {
               </div>
             )}
 
-            {/* 3. IDIOMAS */}
             {languages && languages.length > 0 && (
               <div className="text-xs">
                 <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-2 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Idiomas</h3>
@@ -140,13 +132,9 @@ export default function TemplateLaura({ data }: Props) {
                 </ul>
               </div>
             )}
-
           </div>
 
-          {/* COLUMNA DERECHA (Perfil -> Educación -> Experiencia -> Referencias) */}
           <div className="col-span-8 flex flex-col text-xs" style={{ gap: '20px' }}>
-            
-            {/* 4. PERFIL PROFESIONAL */}
             {profile && (
               <div>
                 <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-1.5 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Perfil Profesional</h3>
@@ -154,7 +142,6 @@ export default function TemplateLaura({ data }: Props) {
               </div>
             )}
 
-            {/* 5. EDUCACIÓN */}
             {education && education.length > 0 && (
               <div>
                 <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-1.5 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Educación</h3>
@@ -169,7 +156,6 @@ export default function TemplateLaura({ data }: Props) {
               </div>
             )}
 
-            {/* 6. EXPERIENCIA */}
             {experience && experience.length > 0 && (
               <div>
                 <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-1.5 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Experiencia</h3>
@@ -188,7 +174,6 @@ export default function TemplateLaura({ data }: Props) {
               </div>
             )}
 
-            {/* 7. REFERENCIAS */}
             {references && references.length > 0 && (
               <div>
                 <h3 className="font-bold uppercase tracking-wider border-b pb-1 mb-1.5 text-gray-900" style={{ fontSize: '14px', borderColor: styles?.accentColor || '#111827' }}>Referencias</h3>
@@ -203,16 +188,12 @@ export default function TemplateLaura({ data }: Props) {
                 </div>
               </div>
             )}
-
           </div>
-
         </div>
 
-        {/* PIE DE PÁGINA */}
         <div className="text-right text-[10px] text-gray-400 pt-2 border-t">
           CVRD.DO — Plantilla Profesional
         </div>
-
       </div>
     </div>
   );

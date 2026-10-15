@@ -89,9 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return { error: null };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("-> [AuthContext] Error crítico en loginB2B:", err);
-      return { error: err.message || 'Error de conexión' };
+      const errorMessage = err instanceof Error ? err.message : 'Error de conexión';
+      return { error: errorMessage };
     }
   };
 

@@ -12,7 +12,20 @@ interface Props {
 export const TemplateThumbnail: React.FC<Props> = ({ template }) => {
   const isMaster = template.category === 'master';
   const isPremium = template.category === 'premium';
-  const ComponentToRender = TEMPLATE_COMPONENTS[template.id];
+  
+  // Búsqueda segura del componente (probando el ID exacto y variantes comunes)
+  let ComponentToRender = TEMPLATE_COMPONENTS[template.id];
+  if (!ComponentToRender) {
+    // Intentar buscar variantes comunes por si hay desfase en los IDs
+    if (template.id === 'AcademicResearchTemplate') {
+      ComponentToRender = TEMPLATE_COMPONENTS['TemplateAcademicResearch'];
+    } else if (template.id === 'ATSDirectClassicTemplate') {
+      ComponentToRender = TEMPLATE_COMPONENTS['TemplateAtsClassic'];
+    }
+  }
+
+  // Validación rigurosa de que el componente sea una función válida de React
+  const isValidComponent = typeof ComponentToRender === 'function';
 
   return (
     <div className="relative w-full aspect-8.5/11 rounded-xl overflow-hidden bg-white border border-gray-200/80 group-hover:border-amber-400 transition-all duration-300 shadow-xs">
@@ -20,7 +33,7 @@ export const TemplateThumbnail: React.FC<Props> = ({ template }) => {
       {/* Contenedor con escala original exacta */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-white p-1">
         <div className="w-204 h-264 shrink-0 origin-center scale-[0.38] sm:scale-[0.41] md:scale-[0.36] lg:scale-[0.39] pointer-events-none select-none flex items-start justify-center">
-          {ComponentToRender ? (
+          {isValidComponent ? (
             <ComponentToRender data={SAMPLE_CV_DATA} />
           ) : (
             <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-12 text-center text-gray-400">
@@ -35,7 +48,7 @@ export const TemplateThumbnail: React.FC<Props> = ({ template }) => {
       {/* Overlay transparente */}
       <div className="absolute inset-0 bg-transparent group-hover:bg-gray-950/5 transition-colors duration-300 z-10" />
 
-      {/* Badge de Categoría Flotante (Estándar, Premium o Master sin estrellitas de IA) */}
+      {/* Badge de Categoría Flotante */}
       <div className="absolute top-3 left-3 flex items-center gap-1.5 z-20">
         {isMaster ? (
           <span className="bg-gray-950 text-amber-400 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">

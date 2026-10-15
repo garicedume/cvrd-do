@@ -26,7 +26,7 @@ export default function RootLayout({
         {/* El Header conectado globalmente */}
         <Header />
         
-        {/* Aquí es donde Next.js inyecta el contenido de tu page.tsx de inicio */}
+        {/* Contenido principal de la página */}
         <main className="flex-1">{children}</main>
         
         {/* El Footer conectado globalmente */}

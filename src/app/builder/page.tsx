@@ -692,7 +692,7 @@ function BuilderContent() {
                   {[
                     "Lato", "Inter", "Roboto", "Open Sans", "Source Sans 3", 
                     "Poppins", "Montserrat", "Manrope", "DM Sans", "Plus Jakarta Sans", 
-                    "Raleway", "Urbanist", "IBM Plex Sans", "Work Sans", "Nunito Sans"
+                    "Raleway", "Urbanist", "IBM Plex Sans", "Work Sans", "Nunito Sans", "Times New Roman"
                   ].map((font) => (
                     <button
                       key={font}
@@ -702,7 +702,7 @@ function BuilderContent() {
                           ? 'bg-gray-900 text-white border-gray-900 shadow-md'
                           : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100'
                       }`}
-                      style={{ fontFamily: font }}
+                      style={{ fontFamily: font === 'Times New Roman' ? 'Times New Roman, serif' : font }}
                     >
                       {font}
                     </button>

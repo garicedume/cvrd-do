@@ -69,14 +69,6 @@ export const SAMPLE_CV_DATA: CVData = {
       endDate: 'Presente',
       description: '• Liderazgo técnico de un equipo de 8 desarrolladores.\n• Optimización de arquitectura reduciendo tiempos de respuesta un 40%.\n• Implementación de procesos automatizados de despliegue cloud.',
     },
-    {
-      id: 'exp2',
-      company: 'Grupo Empresarial Caribe',
-      role: 'Desarrollador Full Stack',
-      startDate: '2019',
-      endDate: '2022',
-      description: '• Integración de pasarelas de pago e interfaces web responsivas.\n• Mejora del rendimiento web incrementando la tasa de conversión.',
-    },
   ],
   education: [
     {
@@ -86,43 +78,17 @@ export const SAMPLE_CV_DATA: CVData = {
       startDate: '2015',
       endDate: '2019',
     },
-    {
-      id: 'edu2',
-      institution: 'PUCMM',
-      degree: 'Maestría en Gestión de TI',
-      startDate: '2020',
-      endDate: '2022',
-    },
   ],
   skills: [
     { id: 's1', name: 'TypeScript / React', level: 'Experto' },
     { id: 's2', name: 'Next.js & Tailwind CSS', level: 'Experto' },
-    { id: 's3', name: 'Arquitectura Cloud & AWS', level: 'Avanzado' },
-    { id: 's4', name: 'Gestión de Proyectos', level: 'Avanzado' },
   ],
   languages: [
     { id: 'l1', name: 'Español', level: 'Nativo' },
-    { id: 'l2', name: 'Inglés', level: 'Avanzado' },
   ],
-  references: [
-    {
-      id: 'r1',
-      name: 'Lic. Roberto Gómez',
-      position: 'Director de Tecnología',
-      company: 'TechCorp RD',
-      phone: '+1 (809) 555-9988',
-    },
-    {
-      id: 'r2',
-      name: 'Ing. Laura Fernández',
-      position: 'Gerente de Operaciones',
-      company: 'Grupo Caribe',
-      phone: '+1 (809) 555-3344',
-    },
-  ],
+  references: [],
   extras: {
     linkedin: 'linkedin.com/in/carlosmendozard',
-    portfolio: 'carlosmendoza.dev',
   },
   styles: {
     fontFamily: 'Poppins, sans-serif',
@@ -130,28 +96,59 @@ export const SAMPLE_CV_DATA: CVData = {
   },
 } as any;
 
-// Registro unificado de componentes de plantillas para el catálogo y constructor
+// Registro sincronizado con los IDs exactos de templatesData.ts
 export const TEMPLATE_COMPONENTS: Record<string, React.FC<{ data: CVData }>> = {
   // Básicos
   TemplateLaura: TemplateLaura as React.FC<{ data: CVData }>,
-  AcademicResearchTemplate: TemplateAcademicResearch as React.FC<{ data: CVData }>, // <-- AQUÍ ESTABA LA CLAVE EXACTA DE TEMPLATESDATA
-  TemplateAcademicResearch: TemplateAcademicResearch as React.FC<{ data: CVData }>, // <-- Alias por seguridad
+  
+  AcademicResearchTemplate: TemplateAcademicResearch as React.FC<{ data: CVData }>,
+  TemplateAcademicResearch: TemplateAcademicResearch as React.FC<{ data: CVData }>,
+
+  ATSDirectClassicTemplate: TemplateAtsClassic as React.FC<{ data: CVData }>,
   TemplateAtsClassic: TemplateAtsClassic as React.FC<{ data: CVData }>,
+
+  // AQUÍ ESTABA EL DETALLE DE LOS IDS EXACTOS:
+  ATSMinimalTemplate: TemplateAtsMinimal as React.FC<{ data: CVData }>,
   TemplateAtsMinimal: TemplateAtsMinimal as React.FC<{ data: CVData }>,
+
+  CharcoalCompactTemplate: TemplateCharcoalCompact as React.FC<{ data: CVData }>,
   TemplateCharcoalCompact: TemplateCharcoalCompact as React.FC<{ data: CVData }>,
+
+  CommercialSalesTemplate: TemplateCommercialSales as React.FC<{ data: CVData }>,
   TemplateCommercialSales: TemplateCommercialSales as React.FC<{ data: CVData }>,
+
+  CorporateStandardTemplate: TemplateCorporateStandard as React.FC<{ data: CVData }>,
   TemplateCorporateStandard: TemplateCorporateStandard as React.FC<{ data: CVData }>,
+
+  CustomerCareTemplate: TemplateCustomerCare as React.FC<{ data: CVData }>,
   TemplateCustomerCare: TemplateCustomerCare as React.FC<{ data: CVData }>,
+
+  ExecutiveCleanTemplate: TemplateExecutiveClean as React.FC<{ data: CVData }>,
   TemplateExecutiveClean: TemplateExecutiveClean as React.FC<{ data: CVData }>,
+
+  FinanceStrictTemplate: TemplateFinanceStrict as React.FC<{ data: CVData }>,
   TemplateFinanceStrict: TemplateFinanceStrict as React.FC<{ data: CVData }>,
+
+  LegalStructuralTemplate: TemplateLegalStructural as React.FC<{ data: CVData }>,
   TemplateLegalStructural: TemplateLegalStructural as React.FC<{ data: CVData }>,
+
+  MinimalistLineTemplate: TemplateMinimalistLine as React.FC<{ data: CVData }>,
   TemplateMinimalistLine: TemplateMinimalistLine as React.FC<{ data: CVData }>,
+
+  ModernGridTemplate: TemplateModernGrid as React.FC<{ data: CVData }>,
   TemplateModernGrid: TemplateModernGrid as React.FC<{ data: CVData }>,
+
+  MultisectorBaseTemplate: TemplateMultisectorBase as React.FC<{ data: CVData }>,
   TemplateMultisectorBase: TemplateMultisectorBase as React.FC<{ data: CVData }>,
+
+  OperationalProTemplate: TemplateOperationalPro as React.FC<{ data: CVData }>,
   TemplateOperationalPro: TemplateOperationalPro as React.FC<{ data: CVData }>,
+
+  TechFocusedTemplate: TemplateTechFocused as React.FC<{ data: CVData }>,
   TemplateTechFocused: TemplateTechFocused as React.FC<{ data: CVData }>,
 
   // Premium
+  CorporateArchTemplate: TemplateBrandDesigner as React.FC<{ data: CVData }>,
   TemplateBrandDesigner: TemplateBrandDesigner as React.FC<{ data: CVData }>,
   TemplateConsultingSenior: TemplateConsultingSenior as React.FC<{ data: CVData }>,
   TemplateCreativeDirector: TemplateCreativeDirector as React.FC<{ data: CVData }>,
@@ -180,7 +177,7 @@ export const TEMPLATE_COMPONENTS: Record<string, React.FC<{ data: CVData }>> = {
   TemplateMasterPinnacleGrid: TemplateMasterPinnacleGrid as React.FC<{ data: CVData }>,
   TemplateMasterLegacyExecutive: TemplateMasterLegacyExecutive as React.FC<{ data: CVData }>,
 
-  // Extras (Respaldo temporal con Laura)
+  // Extras
   ExtraStandard01: TemplateLaura as React.FC<{ data: CVData }>,
   ExtraStandard02: TemplateLaura as React.FC<{ data: CVData }>,
   ExtraStandard03: TemplateLaura as React.FC<{ data: CVData }>,
