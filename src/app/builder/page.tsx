@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { INITIAL_CV_DATA, CVData } from '@/types/cv';
 import { TEMPLATE_COMPONENTS } from '@/lib/templateRegistry';
 import { TEMPLATES_LIST } from '@/lib/templatesData';
-import { Download, CheckCircle, ArrowRight, LayoutTemplate, Upload, Trash2, Tag, ShieldCheck } from 'lucide-react';
+import { Download, CheckCircle, ArrowRight, LayoutTemplate, Upload, Trash2, ShieldCheck, Eye, Edit3, X } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import dynamic from 'next/dynamic';
 import { CVDocument } from '@/components/pdf/CVDocument';
@@ -59,6 +59,7 @@ function BuilderContent() {
   }, []);
 
   const [activeTab, setActiveTab] = useState<number>(1);
+  const [mobileViewMode, setMobileViewMode] = useState<'editor' | 'preview'>('editor');
   const [photoError, setPhotoError] = useState<string | null>(null);
 
   const [promoInput, setPromoInput] = useState<string>('');
@@ -241,25 +242,28 @@ function BuilderContent() {
     setCvData({ ...cvData, references: cvData.references.filter((_, i) => i !== index) });
   };
 
+  const tabsList = [
+    { id: 1, label: "1. Datos", icon: "👤" },
+    { id: 2, label: "2. Perfil", icon: "📄" },
+    { id: 3, label: "3. Experiencia", icon: "💼" },
+    { id: 4, label: "4. Educación", icon: "🎓" },
+    { id: 5, label: "5. Habilidades", icon: "🛠️" },
+    { id: 6, label: "6. Idiomas", icon: "🌐" },
+    { id: 7, label: "7. Referencias", icon: "👥" },
+    { id: 8, label: "8. Extras", icon: "🔗" },
+    { id: 9, label: "9. Estilos", icon: "🎨" },
+  ];
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 font-poppins">
+    <div className="flex flex-col min-h-screen bg-gray-100 font-poppins pb-20 lg:pb-0">
       
       {/* BARRA SUPERIOR DE PESTAÑAS Y SELECTOR DE PLANTILLAS */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm print:hidden">
-        <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap scrollbar-thin">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 shadow-sm print:hidden">
+        <div className="max-w-[1700px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
-          <div className="flex items-center gap-2">
-            {[
-              { id: 1, label: "1. Datos", icon: "👤" },
-              { id: 2, label: "2. Perfil", icon: "📄" },
-              { id: 3, label: "3. Experiencia", icon: "💼" },
-              { id: 4, label: "4. Educación", icon: "🎓" },
-              { id: 5, label: "5. Habilidades", icon: "🛠️" },
-              { id: 6, label: "6. Idiomas", icon: "🌐" },
-              { id: 7, label: "7. Referencias", icon: "👥" },
-              { id: 8, label: "8. Extras", icon: "🔗" },
-              { id: 9, label: "9. Estilos", icon: "🎨" },
-            ].map((tab) => (
+          {/* Pestañas con scroll horizontal fluido en móvil */}
+          <div className="w-full md:w-auto flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin pb-2 md:pb-0">
+            {tabsList.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -275,10 +279,10 @@ function BuilderContent() {
             ))}
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            {/* SELECTOR DE PLANTILLAS PROFESIONAL FLUIDO */}
+          <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3 shrink-0">
+            {/* SELECTOR DE PLANTILLAS */}
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 h-10">
-              <LayoutTemplate className="w-4 h-4 text-amber-500" />
+              <LayoutTemplate className="w-4 h-4 text-amber-500 shrink-0" />
               <select
                 value={selectedTemplateKey}
                 onChange={(e) => {
@@ -289,7 +293,7 @@ function BuilderContent() {
               >
                 {TEMPLATES_LIST.map((tpl) => (
                   <option key={tpl.id} value={tpl.id}>
-                    {tpl.name} ({tpl.category === 'master' ? 'Master $10' : tpl.category === 'premium' ? 'Premium $5' : 'Básica $3'})
+                    {tpl.name} ({tpl.category === 'master' ? '$10' : tpl.category === 'premium' ? '$5' : '$3'})
                   </option>
                 ))}
               </select>
@@ -301,7 +305,8 @@ function BuilderContent() {
               className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black px-4 py-2.5 rounded-xl text-xs shadow-md transition-all cursor-pointer h-10"
             >
               <Download className="w-4 h-4" />
-              <span>Finalizar y Descargar CV</span>
+              <span className="hidden sm:inline">Finalizar y Descargar CV</span>
+              <span className="sm:hidden">Descargar</span>
             </button>
           </div>
 
@@ -309,10 +314,10 @@ function BuilderContent() {
       </div>
 
       {/* CONTENEDOR PRINCIPAL: EDITOR (IZQ) Y VISTA PREVIA (DER) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1700px] mx-auto w-full print:p-0 print:block">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 sm:p-6 max-w-[1700px] mx-auto w-full print:p-0 print:block">
         
-        {/* COLUMNA IZQUIERDA: FORMULARIOS */}
-        <div className="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col h-[calc(100vh-180px)] overflow-y-auto print:hidden">
+        {/* COLUMNA IZQUIERDA: FORMULARIOS (Oculta en móvil si está activa la vista previa) */}
+        <div className={`lg:col-span-5 bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-6 flex flex-col lg:h-[calc(100vh-180px)] overflow-y-auto print:hidden ${mobileViewMode === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           
           {activeTab === 1 && (
             <div className="space-y-4">
@@ -336,7 +341,7 @@ function BuilderContent() {
 
                 <div className="space-y-2 pt-2 border-t border-gray-200">
                   <div className="flex items-center gap-3">
-                    <label className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-white border-2 border-dashed border-gray-300 hover:border-amber-500 rounded-xl cursor-pointer text-xs font-bold text-gray-700 transition">
+                    <label className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white border-2 border-dashed border-gray-300 hover:border-amber-500 rounded-xl cursor-pointer text-xs font-bold text-gray-700 transition">
                       <Upload className="w-4 h-4 text-amber-500" />
                       <span>{cvData.personal.photoUrl ? 'Cambiar Imagen (Máx. 2MB)' : 'Subir Imagen (Máx. 2MB)'}</span>
                       <input 
@@ -349,7 +354,7 @@ function BuilderContent() {
                     {cvData.personal.photoUrl && (
                       <button
                         onClick={removePhoto}
-                        className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition cursor-pointer"
+                        className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition cursor-pointer"
                         title="Eliminar foto"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -373,7 +378,7 @@ function BuilderContent() {
                   type="text"
                   value={cvData.personal.fullName}
                   onChange={(e) => handlePersonalChange('fullName', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base lg:text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
@@ -382,50 +387,52 @@ function BuilderContent() {
                   type="text"
                   value={cvData.personal.title}
                   onChange={(e) => handlePersonalChange('title', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-base lg:text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-gray-600 uppercase mb-1">Teléfono Principal</label>
                   <input
-                    type="text"
+                    type="tel"
+                    inputMode="tel"
                     value={cvData.personal.phone}
                     onChange={(e) => handlePersonalChange('phone', e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 lg:py-2 text-base lg:text-xs font-semibold text-gray-900"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-gray-600 uppercase mb-1">2do Teléfono (Opcional)</label>
                   <input
-                    type="text"
+                    type="tel"
+                    inputMode="tel"
                     placeholder="Oficina / Otro"
                     value={cvData.personal.secondaryPhone || ''}
                     onChange={(e) => handlePersonalChange('secondaryPhone', e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 lg:py-2 text-base lg:text-xs font-semibold text-gray-900"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-gray-600 uppercase mb-1">Correo Principal</label>
                   <input
-                    type="text"
+                    type="email"
                     value={cvData.personal.email}
                     onChange={(e) => handlePersonalChange('email', e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 lg:py-2 text-base lg:text-xs font-semibold text-gray-900"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-gray-600 uppercase mb-1">2do Correo (Opcional)</label>
                   <input
-                    type="text"
+                    type="email"
                     placeholder="correo@alternativo.com"
                     value={cvData.personal.secondaryEmail || ''}
                     onChange={(e) => handlePersonalChange('secondaryEmail', e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 lg:py-2 text-base lg:text-xs font-semibold text-gray-900"
                   />
                 </div>
               </div>
@@ -437,14 +444,14 @@ function BuilderContent() {
                   placeholder="Línea 1: C/ primero #36"
                   value={cvData.personal.location}
                   onChange={(e) => handlePersonalChange('location', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 lg:py-2 text-base lg:text-xs font-semibold text-gray-900"
                 />
                 <input
                   type="text"
                   placeholder="Línea 2: Santo Domingo, Rep. Dominicana"
                   value={cvData.personal.locationLine2 || ''}
                   onChange={(e) => handlePersonalChange('locationLine2', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 lg:py-2 text-base lg:text-xs font-semibold text-gray-900"
                 />
               </div>
             </div>
@@ -461,7 +468,7 @@ function BuilderContent() {
                   rows={6}
                   value={cvData.profile}
                   onChange={(e) => setCvData({ ...cvData, profile: e.target.value })}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-base lg:text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
@@ -471,7 +478,7 @@ function BuilderContent() {
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
                 <h2 className="font-bold text-gray-900 text-sm tracking-wide">03 — EXPERIENCIA LABORAL</h2>
-                <button onClick={addExperience} className="bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition">
+                <button onClick={addExperience} className="bg-gray-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-gray-800 transition cursor-pointer">
                   + Añadir Puesto
                 </button>
               </div>
@@ -479,22 +486,22 @@ function BuilderContent() {
                 <div key={exp.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 relative">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-amber-600">PUESTO #{idx + 1}</span>
-                    <button onClick={() => removeExperience(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
+                    <button onClick={() => removeExperience(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold cursor-pointer">Eliminar</button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Cargo"
                       value={exp.role}
                       onChange={(e) => handleExpChange(idx, 'role', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                     <input
                       type="text"
                       placeholder="Empresa"
                       value={exp.company}
                       onChange={(e) => handleExpChange(idx, 'company', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -503,14 +510,14 @@ function BuilderContent() {
                       placeholder="Año Inicio"
                       value={exp.startDate}
                       onChange={(e) => handleExpChange(idx, 'startDate', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                     <input
                       type="text"
                       placeholder="Año Fin"
                       value={exp.endDate}
                       onChange={(e) => handleExpChange(idx, 'endDate', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                   </div>
                   <textarea
@@ -518,7 +525,7 @@ function BuilderContent() {
                     placeholder="Descripción..."
                     value={exp.description}
                     onChange={(e) => handleExpChange(idx, 'description', e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs font-semibold text-gray-900"
+                    className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm lg:text-xs font-semibold text-gray-900"
                   />
                 </div>
               ))}
@@ -529,7 +536,7 @@ function BuilderContent() {
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
                 <h2 className="font-bold text-gray-900 text-sm tracking-wide">04 — EDUCACIÓN</h2>
-                <button onClick={addEducation} className="bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition">
+                <button onClick={addEducation} className="bg-gray-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-gray-800 transition cursor-pointer">
                   + Añadir Título
                 </button>
               </div>
@@ -537,22 +544,22 @@ function BuilderContent() {
                 <div key={edu.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-amber-600">TÍTULO #{idx + 1}</span>
-                    <button onClick={() => removeEducation(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
+                    <button onClick={() => removeEducation(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold cursor-pointer">Eliminar</button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Grado / Carrera"
                       value={edu.degree}
                       onChange={(e) => handleEduChange(idx, 'degree', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                     <input
                       type="text"
                       placeholder="Institución"
                       value={edu.institution}
                       onChange={(e) => handleEduChange(idx, 'institution', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -561,14 +568,14 @@ function BuilderContent() {
                       placeholder="Año Inicio"
                       value={edu.startDate}
                       onChange={(e) => handleEduChange(idx, 'startDate', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                     <input
                       type="text"
                       placeholder="Año Fin"
                       value={edu.endDate}
                       onChange={(e) => handleEduChange(idx, 'endDate', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                   </div>
                 </div>
@@ -581,10 +588,10 @@ function BuilderContent() {
               <div className="border-b pb-3 flex items-center justify-between">
                 <h2 className="font-bold text-gray-900 text-sm tracking-wide">05 — HABILIDADES</h2>
                 <div className="flex gap-2">
-                  <button onClick={() => addSkill('técnica')} className="bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition">
+                  <button onClick={() => addSkill('técnica')} className="bg-gray-900 text-white text-xs font-semibold px-3 py-2 rounded-xl hover:bg-gray-800 transition cursor-pointer">
                     + Técnica
                   </button>
-                  <button onClick={() => addSkill('blanda')} className="bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-amber-600 transition">
+                  <button onClick={() => addSkill('blanda')} className="bg-amber-500 text-white text-xs font-semibold px-3 py-2 rounded-xl hover:bg-amber-600 transition cursor-pointer">
                     + Blanda
                   </button>
                 </div>
@@ -596,9 +603,9 @@ function BuilderContent() {
                     type="text"
                     value={skill.name}
                     onChange={(e) => handleSkillChange(idx, 'name', e.target.value)}
-                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                   />
-                  <button onClick={() => removeSkill(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">🗑️</button>
+                  <button onClick={() => removeSkill(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold cursor-pointer">🗑️</button>
                 </div>
               ))}
             </div>
@@ -608,7 +615,7 @@ function BuilderContent() {
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
                 <h2 className="font-bold text-gray-900 text-sm tracking-wide">06 — IDIOMAS</h2>
-                <button onClick={addLanguage} className="bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition">
+                <button onClick={addLanguage} className="bg-gray-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-gray-800 transition cursor-pointer">
                   + Añadir Idioma
                 </button>
               </div>
@@ -619,16 +626,16 @@ function BuilderContent() {
                     placeholder="Idioma"
                     value={lang.name}
                     onChange={(e) => handleLangChange(idx, 'name', e.target.value)}
-                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                   />
                   <input
                     type="text"
                     placeholder="Nivel"
                     value={lang.level}
                     onChange={(e) => handleLangChange(idx, 'level', e.target.value)}
-                    className="w-32 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="w-28 sm:w-32 bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                   />
-                  <button onClick={() => removeLanguage(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">🗑️</button>
+                  <button onClick={() => removeLanguage(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold cursor-pointer">🗑️</button>
                 </div>
               ))}
             </div>
@@ -638,7 +645,7 @@ function BuilderContent() {
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
                 <h2 className="font-bold text-gray-900 text-sm tracking-wide">07 — REFERENCIAS</h2>
-                <button onClick={addReference} className="bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition">
+                <button onClick={addReference} className="bg-gray-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-gray-800 transition cursor-pointer">
                   + Añadir Referencia
                 </button>
               </div>
@@ -646,46 +653,47 @@ function BuilderContent() {
                 <div key={ref.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-amber-600">REFERENCIA #{idx + 1}</span>
-                    <button onClick={() => removeReference(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
+                    <button onClick={() => removeReference(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold cursor-pointer">Eliminar</button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Nombre"
                       value={ref.name}
                       onChange={(e) => handleRefChange(idx, 'name', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                     <input
                       type="text"
                       placeholder="Empresa"
                       value={ref.company}
                       onChange={(e) => handleRefChange(idx, 'company', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Cargo"
                       value={ref.position}
                       onChange={(e) => handleRefChange(idx, 'position', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="tel"
                       placeholder="Teléfono"
                       value={ref.phone}
                       onChange={(e) => handleRefChange(idx, 'phone', e.target.value)}
-                      className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                      className="bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                     />
                   </div>
                   <input
-                    type="text"
+                    type="email"
                     placeholder="Correo"
                     value={ref.email}
                     onChange={(e) => handleRefChange(idx, 'email', e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                   />
                 </div>
               ))}
@@ -707,7 +715,7 @@ function BuilderContent() {
                       }
                     });
                   }}
-                  className="bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition cursor-pointer"
+                  className="bg-gray-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:bg-gray-800 transition cursor-pointer"
                 >
                   + Añadir Enlace
                 </button>
@@ -738,7 +746,7 @@ function BuilderContent() {
                           updated[idx] = { ...updated[idx], label: e.target.value };
                           setCvData({ ...cvData, extras: { ...cvData.extras, customLinks: updated } });
                         }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                       />
                     </div>
                     <div>
@@ -751,7 +759,7 @@ function BuilderContent() {
                           updated[idx] = { ...updated[idx], url: e.target.value };
                           setCvData({ ...cvData, extras: { ...cvData.extras, customLinks: updated } });
                         }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm lg:text-xs font-semibold text-gray-900"
                       />
                     </div>
                   </div>
@@ -781,7 +789,7 @@ function BuilderContent() {
                     <button
                       key={font}
                       onClick={() => setCvData({ ...cvData, styles: { ...cvData.styles, fontFamily: font } })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold text-left transition-all border ${
+                      className={`px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border cursor-pointer ${
                         cvData.styles.fontFamily === font
                           ? 'bg-gray-900 text-white border-gray-900 shadow-md'
                           : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100'
@@ -808,7 +816,7 @@ function BuilderContent() {
                         ...cvData,
                         personal: { ...cvData.personal, photoShape: shape.id as 'circle' | 'square' | 'rounded' }
                       })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
+                      className={`px-3 py-2.5 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                         cvData.personal.photoShape === shape.id
                           ? 'bg-gray-900 text-white border-gray-900 shadow-md'
                           : 'bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100'
@@ -822,12 +830,12 @@ function BuilderContent() {
 
               <div>
                 <label className="block text-[11px] font-bold text-gray-700 uppercase mb-2">Color de Acento</label>
-                <div className="flex gap-3 mb-3">
+                <div className="flex gap-3 mb-3 flex-wrap">
                   {['#FBBF24', '#3B82F6', '#10B981', '#475569', '#EF4444', '#1E293B'].map((color) => (
                     <button
                       key={color}
                       onClick={() => setCvData({ ...cvData, styles: { ...cvData.styles, accentColor: color } })}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform ${cvData.styles.accentColor === color ? 'scale-110 border-black shadow-md' : 'border-transparent'}`}
+                      className={`w-9 h-9 rounded-full border-2 transition-transform cursor-pointer ${cvData.styles.accentColor === color ? 'scale-110 border-black shadow-md' : 'border-transparent'}`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -845,7 +853,7 @@ function BuilderContent() {
                     type="color"
                     value={cvData.styles.accentColor}
                     onChange={(e) => setCvData({ ...cvData, styles: { ...cvData.styles, accentColor: e.target.value } })}
-                    className="w-6 h-6 rounded border-0 cursor-pointer bg-transparent"
+                    className="w-8 h-8 rounded border-0 cursor-pointer bg-transparent"
                   />
                 </div>
               </div>
@@ -855,12 +863,23 @@ function BuilderContent() {
         </div>
 
         {/* COLUMNA DERECHA: VISTA PREVIA DEL LIENZO */}
-        <div className="lg:col-span-7 flex items-center justify-center bg-gray-200/70 rounded-2xl border border-gray-300 p-6 overflow-auto print:p-0 print:m-0 print:block print:bg-white">
-          <div id="cv-print-container" className="shadow-2xl relative bg-white">
-            
+        <div className={`lg:col-span-7 items-center justify-center bg-gray-200/70 rounded-2xl border border-gray-300 p-6 overflow-auto print:p-0 print:m-0 print:block print:bg-white ${mobileViewMode === 'preview' ? 'flex fixed inset-0 z-40 bg-gray-900/90 rounded-none p-4' : 'hidden lg:flex'}`}>
+          
+          {/* Botón flotante para cerrar vista previa en móvil */}
+          {mobileViewMode === 'preview' && (
+            <button
+              onClick={() => setMobileViewMode('editor')}
+              className="lg:hidden absolute top-4 right-4 z-50 p-3 bg-white text-gray-900 font-bold rounded-full shadow-xl flex items-center gap-2 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+              <span className="text-xs">Volver a Editar</span>
+            </button>
+          )}
+
+          <div id="cv-print-container" className="shadow-2xl relative bg-white scale-90 sm:scale-100 origin-top">
             {!isPaid && (
               <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center overflow-hidden">
-                <div className="transform -rotate-45 text-gray-400/30 text-4xl font-black uppercase tracking-widest whitespace-nowrap select-none border-4 border-gray-400/30 px-8 py-4 rounded-3xl">
+                <div className="transform -rotate-45 text-gray-400/30 text-3xl sm:text-4xl font-black uppercase tracking-widest whitespace-nowrap select-none border-4 border-gray-400/30 px-8 py-4 rounded-3xl">
                   CVRD.DO — VISTA PREVIA NO PAGADA
                 </div>
               </div>
@@ -872,7 +891,32 @@ function BuilderContent() {
 
       </div>
 
-      {/* MODAL DE ADVERTENCIA / VERIFICACIÓN (DISEÑO CORPORATIVO Y ELEGANTE) */}
+      {/* BARRA FLOTANTE INFERIOR EXCLUSIVA PARA MÓVILES (Para alternar entre Editor y Vista Previa) */}
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl flex items-center justify-around z-40 print:hidden">
+        <button
+          onClick={() => setMobileViewMode('editor')}
+          className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer ${
+            mobileViewMode === 'editor' ? 'bg-gray-900 text-white shadow-md' : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          <Edit3 className="w-4 h-4 text-amber-400" />
+          <span>Editar Formulario</span>
+        </button>
+
+        <div className="w-px h-6 bg-gray-200 mx-2" />
+
+        <button
+          onClick={() => setMobileViewMode('preview')}
+          className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer ${
+            mobileViewMode === 'preview' ? 'bg-amber-500 text-gray-950 shadow-md' : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          <Eye className="w-4 h-4" />
+          <span>Ver Vista Previa</span>
+        </button>
+      </div>
+
+      {/* MODAL DE ADVERTENCIA / VERIFICACIÓN */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 print:hidden">
           <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 text-center animate-in fade-in zoom-in duration-200 border border-gray-100">
@@ -911,7 +955,7 @@ function BuilderContent() {
         </div>
       )}
 
-      {/* MODAL DE PAYPAL CON CÓDIGO PROMOCIONAL BLINDADO (SIN EJEMPLOS) */}
+      {/* MODAL DE PAYPAL CON CÓDIGO PROMOCIONAL */}
       {showPaymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 print:hidden">
           <div className="bg-[#0f0f11] text-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-gray-800 animate-in fade-in zoom-in duration-200">
@@ -969,10 +1013,8 @@ function BuilderContent() {
               </PayPalScriptProvider>
             </div>
 
-            {/* CÓDIGO PROMOCIONAL SIN NINGUNA PISTA NI EJEMPLO */}
             <div className="pt-4 border-t border-gray-800 space-y-2">
               <label className="flex items-center gap-1.5 text-xs font-bold text-gray-300 uppercase">
-                <Tag className="w-3.5 h-3.5 text-amber-500" />
                 <span>¿Tienes un código promocional?</span>
               </label>
               <div className="flex gap-2">
@@ -1009,7 +1051,7 @@ function BuilderContent() {
         </div>
       )}
 
-      {/* MODAL DE ÉXITO Y DESCARGA DINÁMICA */}
+      {/* MODAL DE ÉXITO */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 print:hidden">
           <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 text-center animate-in fade-in zoom-in duration-200">
