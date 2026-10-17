@@ -11,8 +11,45 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "CVRD.DO — Constructor de CVs",
-  description: "Crea tu currículum profesional con precisión perfecta.",
+  metadataBase: new URL('https://cvrd.do'),
+  title: {
+    default: "CVRD.DO — Constructor de CVs Profesionales en República Dominicana",
+    template: "%s | CVRD.DO"
+  },
+  description: "Crea tu currículum profesional, moderno y listo para destacar en menos de 2 minutos. Adaptado al estándar laboral de República Dominicana en formato Carta oficial. Aprobado por filtros ATS.",
+  keywords: [
+    'crear CV República Dominicana', 
+    'currículum vitae Santo Domingo', 
+    'plantillas de CV ATS', 
+    'hacer currículum online RD', 
+    'formato carta CV'
+  ],
+  openGraph: {
+    type: 'website',
+    locale: 'es_DO',
+    url: 'https://cvrd.do',
+    title: 'CVRD.DO — Constructor de CVs Profesionales en RD',
+    description: 'Diseñamos el CV que te consigue el empleo en República Dominicana. Descarga inmediata en PDF.',
+    siteName: 'CVRD.DO',
+    images: [
+      {
+        url: '/template_executive.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'CVRD - Creador de Currículums Profesionales en RD',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CVRD.DO — Constructor de CVs Profesionales en RD',
+    description: 'El estándar laboral de República Dominicana en formato Carta oficial. Aprobado por ATS.',
+    images: ['/template_executive.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

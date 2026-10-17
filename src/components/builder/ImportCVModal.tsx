@@ -24,15 +24,16 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
   onFileAccepted,
 }) => {
   const router = useRouter();
-
-  let updateCVData = (data: any) => {};
-  let updateContact = (contact: any) => {};
+  
+  // Tipado limpio con unknown para cumplir estrictamente con las reglas de ESLint
+  let updateCVData: (_data: unknown) => void = () => {};
+  let updatePersonal: (_contact: unknown) => void = () => {};
 
   try {
     const cvContext = useCV();
-    updateCVData = cvContext.updateCVData;
-    updateContact = cvContext.updateContact;
-  } catch (e) {
+    updateCVData = cvContext.updateCVData as (_data: unknown) => void;
+    updatePersonal = cvContext.updatePersonal as (_contact: unknown) => void;
+  } catch {
     // Entorno sin proveedor ignorado
   }
 
@@ -115,59 +116,70 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
       }
 
       if (result.parsedData) {
-        const parsed = result.parsedData;
+        const parsed = result.parsedData as Record<string, unknown>;
 
-        // 🛡️ Asignación segura de contacto
-        if (parsed.contact && typeof parsed.contact === 'object') {
-          updateContact({
-            fullName: parsed.contact.fullName || '',
-            professionalTitle: parsed.contact.professionalTitle || '',
-            phone: parsed.contact.phone || '',
-            email: parsed.contact.email || '',
-            city: parsed.contact.city || '',
-            country: parsed.contact.country || '',
+        if (parsed.contact && typeof parsed.contact === 'object' && parsed.contact !== null) {
+          const contactObj = parsed.contact as Record<string, string>;
+          updatePersonal({
+            fullName: contactObj.fullName || contactObj.nombre || '',
+            professionalTitle: contactObj.professionalTitle || contactObj.cargo || '',
+            phone: contactObj.phone || contactObj.telefono || '',
+            email: contactObj.email || contactObj.correo || '',
+            city: contactObj.city || '',
+            country: contactObj.country || '',
           });
         }
 
-        // 🛡️ Mapeos blindados para evitar errores de tipo 'is not a function'
         const safeExperiences = Array.isArray(parsed.experiences) ? parsed.experiences : [];
         const safeEducation = Array.isArray(parsed.education) ? parsed.education : [];
         const safeSkills = Array.isArray(parsed.skills) ? parsed.skills : [];
         const safeLanguages = Array.isArray(parsed.languages) ? parsed.languages : [];
 
         updateCVData({
-          summary: parsed.summary || '',
-          experiences: safeExperiences.map((exp: any, index: number) => ({
-            id: `exp-imported-${index}-${Date.now()}`,
-            company: exp.company || '',
-            position: exp.position || '',
-            cityCountry: '',
-            startDate: exp.startDate || '',
-            endDate: exp.endDate || 'Presente',
-            isCurrent: false,
-            responsibilities: Array.isArray(exp.responsibilities) ? exp.responsibilities : [exp.responsibilities || ''],
-            achievements: '',
-          })),
-          education: safeEducation.map((edu: any, index: number) => ({
-            id: `edu-imported-${index}-${Date.now()}`,
-            degree: edu.degree || '',
-            institution: edu.institution || '',
-            cityCountry: '',
-            startDate: edu.startDate || '',
-            endDate: edu.endDate || '',
-            isCurrent: false,
-          })),
-          skills: safeSkills.map((sk: any, index: number) => ({
-            id: `sk-imported-${index}-${Date.now()}`,
-            name: typeof sk === 'string' ? sk : (sk.name || ''),
-            level: 'Avanzado',
-            category: sk.category || 'technical',
-          })),
-          languages: safeLanguages.map((lang: any, index: number) => ({
-            id: `lang-imported-${index}-${Date.now()}`,
-            language: typeof lang === 'string' ? lang : (lang.language || ''),
-            proficiency: lang.proficiency || 'Intermedio',
-          })),
+          summary: typeof parsed.summary === 'string' ? parsed.summary : '',
+          experience: safeExperiences.map((expItem: unknown, index: number) => {
+            const exp = (expItem && typeof expItem === 'object' ? expItem : {}) as Record<string, unknown>;
+            return {
+              id: `exp-imported-${index}-${Date.now()}`,
+              role: String(exp.position || exp.role || ''),
+              company: String(exp.company || ''),
+              startDate: String(exp.startDate || ''),
+              endDate: String(exp.endDate || 'Presente'),
+              description: Array.isArray(exp.responsibilities) 
+                ? exp.responsibilities.join('\n') 
+                : String(exp.responsibilities || exp.description || ''),
+            };
+          }),
+          education: safeEducation.map((eduItem: unknown, index: number) => {
+            const edu = (eduItem && typeof eduItem === 'object' ? eduItem : {}) as Record<string, unknown>;
+            return {
+              id: `edu-imported-${index}-${Date.now()}`,
+              degree: String(edu.degree || ''),
+              institution: String(edu.institution || ''),
+              startDate: String(edu.startDate || ''),
+              endDate: String(edu.endDate || ''),
+            };
+          }),
+          skills: safeSkills.map((skItem: unknown, index: number) => {
+            const sk = (skItem && typeof skItem === 'object' ? skItem : {}) as Record<string, unknown>;
+            const name = typeof skItem === 'string' ? skItem : String(sk.name || '');
+            const type = (typeof sk === 'object' && sk.type === 'blanda' ? 'blanda' : 'técnica') as 'técnica' | 'blanda';
+            return {
+              id: `sk-imported-${index}-${Date.now()}`,
+              name,
+              type,
+            };
+          }),
+          languages: safeLanguages.map((langItem: unknown, index: number) => {
+            const lang = (langItem && typeof langItem === 'object' ? langItem : {}) as Record<string, unknown>;
+            const name = typeof langItem === 'string' ? langItem : String(lang.language || lang.name || '');
+            const level = typeof lang === 'object' ? String(lang.proficiency || lang.level || 'Intermedio') : 'Intermedio';
+            return {
+              id: `lang-imported-${index}-${Date.now()}`,
+              name,
+              level,
+            };
+          }),
         });
       }
 
@@ -175,31 +187,33 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
       onClose();
       router.push('/builder');
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Ocurrió un error inesperado al conectar con el servidor.');
+      const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error inesperado al conectar con el servidor.';
+      setError(errorMessage);
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-sm p-4 font-poppins">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-gray-200 shadow-2xl relative space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-sm p-4 font-poppins overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-gray-200 shadow-2xl relative space-y-6 my-auto">
         
         <button
           onClick={onClose}
           disabled={isProcessing}
-          className="absolute top-5 right-5 p-2 text-gray-400 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-3 text-gray-400 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+          aria-label="Cerrar modal"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-400 text-gray-950 flex items-center justify-center font-black shadow-md shadow-amber-400/20">
+        <div className="flex items-center gap-3 pr-8">
+          <div className="w-12 h-12 rounded-2xl bg-amber-400 text-gray-950 flex items-center justify-center font-black shadow-md shadow-amber-400/20 shrink-0">
             <UploadCloud className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-gray-900">¿Ya tienes un CV?</h3>
+            <h3 className="text-lg font-black text-gray-950">¿Ya tienes un CV?</h3>
             <p className="text-xs text-gray-500 font-medium">
               Sube tu archivo y lo transformamos automáticamente.
             </p>
@@ -212,7 +226,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           onDragOver={handleDrag}
           onDrop={handleDrop}
           onClick={() => !isProcessing && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-3 ${
+          className={`border-2 border-dashed rounded-3xl p-6 sm:p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-3 ${
             dragActive
               ? 'border-amber-500 bg-amber-50/50 scale-[1.01]'
               : 'border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400'
@@ -221,7 +235,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.docx"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={handleChange}
             disabled={isProcessing}
             className="hidden"
@@ -243,10 +257,10 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
           ) : (
             <div className="space-y-1">
               <p className="text-xs font-black text-gray-800">
-                Arrastra y suelta tu CV aquí, o <span className="text-amber-600 underline">búscalo en tu equipo</span>
+                Toca aquí para <span className="text-amber-600 underline">elegir tu archivo</span> o arrástralo
               </p>
               <p className="text-[10px] text-gray-400 font-medium">
-                Formatos: PDF, Word (.docx) (Máximo 5MB)
+                PDF o Word (.docx) (Máximo 5MB)
               </p>
             </div>
           )}
@@ -262,7 +276,7 @@ export const ImportCVModal: React.FC<ImportCVModalProps> = ({
         <button
           disabled={!selectedFile || isProcessing}
           onClick={handleConfirmUpload}
-          className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md ${
+          className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 ${
             selectedFile && !isProcessing
               ? 'bg-gray-900 text-white hover:bg-amber-400 hover:text-gray-950 cursor-pointer'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'

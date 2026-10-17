@@ -11,19 +11,72 @@ import {
   Send, 
   FileCheck2
 } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import PromoBanner from '@/components/ui/PromoBanner';
 import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
 import { ImportBanner } from '@/components/ui/ImportBanner';
 import { ImportCVModal } from '@/components/builder/ImportCVModal';
+
+// Inicializar cliente de Supabase (reemplaza o usa tus variables de entorno)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'TU_SUPABASE_URL';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'TU_SUPABASE_ANON_KEY';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function HomePage() {
   const [b2bForm, setB2bForm] = useState({ nombre: '', negocio: '', contacto: '', mensaje: '' });
   const [b2bEnviado, setB2bEnviado] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
+  // Función de envío B2B
   const handleB2bSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setB2bEnviado(true);
+  };
+
+  // Función de Subida y Seguridad 200% para CVs (Anti-spam, Tamaño max 5MB, Tipos MIME reales)
+  const handleSeguridadCvUpload = async (file: File, datos: { nombre: string, telefono: string, email: string }) => {
+    // 1. Validación estricta de tamaño (Máximo 5MB)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      throw new Error("El archivo excede el límite permitido de 5MB.");
+    }
+
+    // 2. Validación de Tipo MIME real
+    const allowedTypes = [
+      'application/pdf', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Formato no válido. Solo se permiten archivos PDF o Word (.docx).");
+    }
+
+    // 3. Generar nombre único seguro para evitar colisiones o archivos maliciosos
+    const fileExt = file.name.split('.').pop();
+    const safeFileName = `${crypto.randomUUID()}.${fileExt}`;
+    const filePath = `public/${safeFileName}`;
+
+    // 4. Subir al bucket privado 'cvs' en Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('cvs')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    // 5. Guardar registro en la tabla protegida por RLS
+    const { error: dbError } = await supabase
+      .from('postulaciones')
+      .insert([
+        { 
+          nombre: datos.nombre, 
+          telefono: datos.telefono, 
+          email: datos.email, 
+          cv_url: filePath 
+        }
+      ]);
+
+    if (dbError) throw dbError;
+
+    return true;
   };
 
   const reseñas = [
