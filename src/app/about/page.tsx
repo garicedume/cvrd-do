@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Layers, Sparkles, ShieldCheck, Target, HeartHandshake, ArrowRight } from 'lucide-react';
+import { Layers, ShieldCheck, Target, HeartHandshake, ArrowRight } from 'lucide-react';
 
 export default function AboutPage() {
   return (
@@ -11,9 +11,6 @@ export default function AboutPage() {
         
         {/* Header */}
         <div className="text-center space-y-4">
-          <span className="bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider">
-            NUESTRA HISTORIA Y MISIÓN
-          </span>
           <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight">
             Impulsando el Talento Caribeño hacia Oportunidades Globales
           </h1>
@@ -36,7 +33,8 @@ export default function AboutPage() {
 
           <div className="bg-white p-8 rounded-3xl border border-gray-200/90 shadow-sm space-y-3">
             <div className="w-12 h-12 bg-gray-900 text-amber-400 rounded-2xl flex items-center justify-center font-black shadow-md">
-              <Sparkles className="w-6 h-6" />
+              {/* Estrellita eliminada y reemplazada por un indicador de visión limpio o se quitó el icono */}
+              <Target className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-black text-gray-900">Nuestra Visión</h3>
             <p className="text-xs text-gray-600 leading-relaxed font-medium">

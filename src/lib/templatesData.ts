@@ -11,10 +11,10 @@ export interface TemplateInfo {
 
 export const TEMPLATES_LIST: TemplateInfo[] = [
   // ==========================================
-  // 1. NIVEL BÁSICO: 15 Plantillas ($3.00 USD)
+  // 1. NIVEL BÁSICO (25 Plantillas - $3.00 USD)
   // ==========================================
   {
-    id: 'AcademicResearchTemplate',
+    id: 'templateBasico01',
     name: 'Academic Research',
     category: 'standard',
     price: 3,
@@ -23,7 +23,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Estructura editorial clásica ideal para docentes, investigadores y perfiles universitarios.',
   },
   {
-    id: 'ATSDirectClassicTemplate',
+    id: 'templateBasico02',
     name: 'ATS Direct Classic',
     category: 'standard',
     price: 3,
@@ -32,7 +32,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Formato limpio garantizado para lectura óptima por filtros automatizados de RRHH.',
   },
   {
-    id: 'ATSMinimalTemplate',
+    id: 'templateBasico03',
     name: 'ATS Minimal',
     category: 'standard',
     price: 3,
@@ -41,7 +41,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Jerarquía tipográfica minimalista sin elementos gráficos que obstaculicen escáneres.',
   },
   {
-    id: 'CharcoalCompactTemplate',
+    id: 'templateBasico04',
     name: 'Charcoal Compact',
     category: 'standard',
     price: 3,
@@ -50,7 +50,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Aprovechamiento máximo del espacio en 1 sola página Carta con tonos carbón nítidos.',
   },
   {
-    id: 'CommercialSalesTemplate',
+    id: 'templateBasico05',
     name: 'Commercial Sales',
     category: 'standard',
     price: 3,
@@ -59,7 +59,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Enfocado en métricas de cumplimiento, metas alcanzadas y gestión de cuentas claves.',
   },
   {
-    id: 'CustomerCareTemplate',
+    id: 'templateBasico06',
     name: 'Customer Care Pro',
     category: 'standard',
     price: 3,
@@ -68,7 +68,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Estructura clara resaltando comunicación, resolución de conflictos e idiomas.',
   },
   {
-    id: 'EmeraldCleanTemplate',
+    id: 'templateBasico07',
     name: 'Emerald Clean',
     category: 'standard',
     price: 3,
@@ -77,7 +77,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Toques de verde esmeralda con distribución equilibrada entre perfil y experiencia.',
   },
   {
-    id: 'HospitalityTourismTemplate',
+    id: 'templateBasico08',
     name: 'Hospitality & Tourism',
     category: 'standard',
     price: 3,
@@ -86,7 +86,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Diseñado para el sector turístico de RD, enfatizando idiomas, servicio y dinamismo.',
   },
   {
-    id: 'LegalCounselTemplate',
+    id: 'templateBasico09',
     name: 'Legal Counsel',
     category: 'standard',
     price: 3,
@@ -95,7 +95,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Estilo formal y sobrio optimizado para abogados, consultores y gestores legales.',
   },
   {
-    id: 'LogisticsProTemplate',
+    id: 'templateBasico10',
     name: 'Logistics & Ops Pro',
     category: 'standard',
     price: 3,
@@ -104,7 +104,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Organización por bloques para destacar experiencia operativa y certificaciones.',
   },
   {
-    id: 'MedicalHealthTemplate',
+    id: 'templateBasico11',
     name: 'Medical & Health Care',
     category: 'standard',
     price: 3,
@@ -113,7 +113,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Distribución institucional perfecta para médicos, personal de enfermería y salud.',
   },
   {
-    id: 'NavyCorporateTemplate',
+    id: 'templateBasico12',
     name: 'Navy Corporate',
     category: 'standard',
     price: 3,
@@ -122,7 +122,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Azul marino clásico que transmite solvencia y profesionalismo en el sector corporativo.',
   },
   {
-    id: 'OperationsLeadTemplate',
+    id: 'templateBasico13',
     name: 'Operations Lead',
     category: 'standard',
     price: 3,
@@ -131,7 +131,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Prioriza logros de eficiencia, manejo de personal y supervisión de procesos.',
   },
   {
-    id: 'SlateModernTemplate',
+    id: 'templateBasico14',
     name: 'Slate Modern',
     category: 'standard',
     price: 3,
@@ -140,7 +140,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     description: 'Líneas limpias en gris pizarra con alta legibilidad para cualquier industria.',
   },
   {
-    id: 'TechDeveloperTemplate',
+    id: 'templateBasico15',
     name: 'Tech & Code Developer',
     category: 'standard',
     price: 3,
@@ -148,9 +148,99 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     industry: 'Tecnología / Software',
     description: 'Optimizado para ingenieros de software, analistas y perfiles técnicos.',
   },
+  {
+    id: 'templateBasico16',
+    name: 'Standard Pro Classic',
+    category: 'standard',
+    price: 3,
+    tag: 'Esencial ATS',
+    industry: 'Multisectorial',
+    description: 'Variación clásica adicional optimizada para sistemas ATS.',
+  },
+  {
+    id: 'templateBasico17',
+    name: 'Standard Clean Line',
+    category: 'standard',
+    price: 3,
+    tag: 'Líneas Limpias',
+    industry: 'Administrativo',
+    description: 'Formato estándar equilibrado para personal administrativo.',
+  },
+  {
+    id: 'templateBasico18',
+    name: 'Standard Direct View',
+    category: 'standard',
+    price: 3,
+    tag: 'Lectura Rápida',
+    industry: 'Comercial',
+    description: 'Diseñado para una rápida evaluación por reclutadores.',
+  },
+  {
+    id: 'templateBasico19',
+    name: 'Standard Corporate Basic',
+    category: 'standard',
+    price: 3,
+    tag: 'Corporativo Base',
+    industry: 'Finanzas',
+    description: 'Estructura básica corporativa formal.',
+  },
+  {
+    id: 'templateBasico20',
+    name: 'Standard Functional',
+    category: 'standard',
+    price: 3,
+    tag: 'Funcional',
+    industry: 'Operaciones',
+    description: 'Enfocado en destacar funciones operativas clave.',
+  },
+  {
+    id: 'templateBasico21',
+    name: 'Standard Modern ATS',
+    category: 'standard',
+    price: 3,
+    tag: 'Moderno ATS',
+    industry: 'Tecnología',
+    description: 'Toque moderno sin perder compatibilidad ATS.',
+  },
+  {
+    id: 'templateBasico22',
+    name: 'Standard Executive Lite',
+    category: 'standard',
+    price: 3,
+    tag: 'Ejecutivo Base',
+    industry: 'Gestión',
+    description: 'Versión ligera para mandos medios en ascenso.',
+  },
+  {
+    id: 'templateBasico23',
+    name: 'Standard Minimalist Grid',
+    category: 'standard',
+    price: 3,
+    tag: 'Grid Simple',
+    industry: 'General',
+    description: 'Estructura simple en cuadrícula.',
+  },
+  {
+    id: 'templateBasico24',
+    name: 'Standard Balanced View',
+    category: 'standard',
+    price: 3,
+    tag: 'Balanceado',
+    industry: 'Servicios',
+    description: 'Excelente balance entre texto y espacio en blanco.',
+  },
+  {
+    id: 'templateBasico25',
+    name: 'Standard Universal',
+    category: 'standard',
+    price: 3,
+    tag: 'Universal',
+    industry: 'Multisectorial',
+    description: 'Se adapta a cualquier tipo de perfil profesional.',
+  },
 
   // ==========================================
-  // 2. NIVEL PREMIUM: 10 Plantillas ($5.00 USD)
+  // 2. NIVEL PREMIUM (10 Plantillas - $5.00 USD)
   // ==========================================
   {
     id: 'CorporateArchTemplate',
@@ -246,7 +336,7 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
   },
 
   // ==========================================
-  // 3. NIVEL MASTER: 15 Plantillas ($10.00 USD)
+  // 3. NIVEL MASTER (15 Plantillas - $10.00 USD)
   // ==========================================
   {
     id: 'TemplateMasterApexExecutive',
@@ -384,117 +474,5 @@ export const TEMPLATES_LIST: TemplateInfo[] = [
     tag: 'Trayectoria Senior',
     industry: 'Alta Dirección Senior',
     description: 'Honra trayectorias profesionales extensas con elegancia sobria.',
-  },
-
-  // ==========================================
-  // 4. ADICIONALES PARA COMPLETAR 50 TOTALES
-  // ==========================================
-  {
-    id: 'ExtraStandard01',
-    name: 'Standard Pro Classic',
-    category: 'standard',
-    price: 3,
-    tag: 'Esencial ATS',
-    industry: 'Multisectorial',
-    description: 'Variación clásica adicional optimizada para sistemas ATS.',
-  },
-  {
-    id: 'ExtraStandard02',
-    name: 'Standard Clean Line',
-    category: 'standard',
-    price: 3,
-    tag: 'Líneas Limpias',
-    industry: 'Administrativo',
-    description: 'Formato estándar equilibrado para personal administrativo.',
-  },
-  {
-    id: 'ExtraStandard03',
-    name: 'Standard Direct View',
-    category: 'standard',
-    price: 3,
-    tag: 'Lectura Rápida',
-    industry: 'Comercial',
-    description: 'Diseñado para una rápida evaluación por reclutadores.',
-  },
-  {
-    id: 'ExtraStandard04',
-    name: 'Standard Corporate Basic',
-    category: 'standard',
-    price: 3,
-    tag: 'Corporativo Base',
-    industry: 'Finanzas',
-    description: 'Estructura básica corporativa formal.',
-  },
-  {
-    id: 'ExtraStandard05',
-    name: 'Standard Functional',
-    category: 'standard',
-    price: 3,
-    tag: 'Funcional',
-    industry: 'Operaciones',
-    description: 'Enfocado en destacar funciones operativas clave.',
-  },
-  {
-    id: 'ExtraStandard06',
-    name: 'Standard Modern ATS',
-    category: 'standard',
-    price: 3,
-    tag: 'Moderno ATS',
-    industry: 'Tecnología',
-    description: 'Toque moderno sin perder compatibilidad ATS.',
-  },
-  {
-    id: 'ExtraStandard07',
-    name: 'Standard Executive Lite',
-    category: 'standard',
-    price: 3,
-    tag: 'Ejecutivo Base',
-    industry: 'Gestión',
-    description: 'Versión ligera para mandos medios en ascenso.',
-  },
-  {
-    id: 'ExtraStandard08',
-    name: 'Standard Minimalist Grid',
-    category: 'standard',
-    price: 3,
-    tag: 'Grid Simple',
-    industry: 'General',
-    description: 'Estructura simple en cuadrícula.',
-  },
-  {
-    id: 'ExtraStandard09',
-    name: 'Standard Balanced View',
-    category: 'standard',
-    price: 3,
-    tag: 'Balanceado',
-    industry: 'Servicios',
-    description: 'Excelente balance entre texto y espacio en blanco.',
-  },
-  {
-    id: 'ExtraStandard10',
-    name: 'Standard Universal',
-    category: 'standard',
-    price: 3,
-    tag: 'Universal',
-    industry: 'Multisectorial',
-    description: 'Se adapta a cualquier tipo de perfil profesional.',
-  },
-  {
-    id: 'ExtraPremium01',
-    name: 'Premium Velvet Luxe',
-    category: 'premium',
-    price: 5,
-    tag: 'Lujo Sutil',
-    industry: 'Dirección / Moda',
-    description: 'Detalles visuales refinados para perfiles de alto nivel estético.',
-  },
-  {
-    id: 'ExtraPremium02',
-    name: 'Premium Onyx Accent',
-    category: 'premium',
-    price: 5,
-    tag: 'Onyx Pro',
-    industry: 'Consultoría',
-    description: 'Contraste elegante en tonos oscuros y blancos.',
   },
 ];

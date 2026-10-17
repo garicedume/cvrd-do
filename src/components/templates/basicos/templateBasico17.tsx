@@ -5,12 +5,6 @@ interface Props {
   data: CVData;
 }
 
-interface CustomLink {
-  label?: string;
-  url?: string;
-  urlLine2?: string;
-}
-
 export default function TemplateAtsClassic({ data }: Props) {
   const { personal, profile, experience, education, skills, languages, references, extras, styles } = data;
 
@@ -42,7 +36,7 @@ export default function TemplateAtsClassic({ data }: Props) {
         fontFamily: styles?.fontFamily || 'Poppins, sans-serif'
       }}
     >
-      <div className="absolute inset-0 box-border flex flex-col justify-between p-[40px]">
+      <div className="absolute inset-0 box-border flex flex-col justify-between p-10">
         
         <div className="text-center pb-4 border-b border-gray-300">
           <h1 className="tracking-tight leading-none flex flex-wrap justify-center gap-x-3 items-baseline" style={{ fontSize: '55px' }}>
@@ -64,7 +58,7 @@ export default function TemplateAtsClassic({ data }: Props) {
         <div className="flex-1 flex gap-6 pt-5 overflow-hidden">
           
           <div 
-            className="w-[260px] flex flex-col justify-between p-5 text-white shrink-0 rounded-xl box-border shadow-inner"
+            className="w-65 flex flex-col justify-between p-5 text-white shrink-0 rounded-xl box-border shadow-inner"
             style={{ backgroundColor: accentColor }}
           >
             <div className="space-y-6">

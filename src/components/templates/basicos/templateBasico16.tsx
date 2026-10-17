@@ -43,7 +43,7 @@ export default function TemplateAcademicResearch({ data }: Props) {
       }}
     >
       <div 
-        className="w-[280px] h-full flex flex-col justify-between p-7 text-white shrink-0 box-border"
+        className="`w-70` h-full flex flex-col justify-between p-7 text-white shrink-0 box-border"
         style={{ backgroundColor: accentColor }}
       >
         <div className="space-y-7">

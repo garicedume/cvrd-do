@@ -1,63 +1,91 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { INITIAL_CV_DATA, CVData } from '@/types/cv';
-import TemplateLaura from '@/components/templates/basicos/TemplateLaura';
 import { TEMPLATE_COMPONENTS } from '@/lib/templateRegistry';
 import { TEMPLATES_LIST } from '@/lib/templatesData';
-import { Download, CheckCircle, ArrowRight, LayoutTemplate } from 'lucide-react';
+import { Download, CheckCircle, ArrowRight, LayoutTemplate, Upload, Trash2, Tag, ShieldCheck } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import dynamic from 'next/dynamic';
+import { CVDocument } from '@/components/pdf/CVDocument';
+
+const PDFDownloadButton = dynamic(
+  () => import('@react-pdf/renderer').then((mod) => {
+    const { PDFDownloadLink } = mod;
+    return function PdfLinkWrapper({ cvData }: { cvData: CVData }) {
+      return (
+        <PDFDownloadLink
+          document={<CVDocument data={cvData} />}
+          fileName={`CV_${cvData.personal.fullName || 'Curriculum'}.pdf`}
+          className="w-full py-3.5 bg-gray-900 hover:bg-amber-400 hover:text-gray-950 text-white font-black text-xs rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+        >
+          {({ loading }) => (
+            <>
+              <Download className="w-4 h-4" />
+              <span>{loading ? 'Generando PDF vectorial...' : 'Descargar PDF Profesional (Vectorial HD)'}</span>
+            </>
+          )}
+        </PDFDownloadLink>
+      );
+    };
+  }),
+  { ssr: false }
+);
+
+const subscribe = () => () => {};
+const useIsClient = () => useSyncExternalStore(subscribe, () => true, () => false);
 
 function BuilderContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const isClient = useIsClient();
 
-  // 1. Datos del CV con Autoguardado Local (Protección ante apagones, F5 o pérdida de internet)
-  const [cvData, setCvData] = useState<CVData>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedData = localStorage.getItem('cvrd_saved_cv_data');
-        if (savedData) {
-          return JSON.parse(savedData);
-        }
-      } catch (e) {
-        console.error('Error al cargar datos guardados:', e);
+  const [cvData, setCvData] = useState<CVData>(INITIAL_CV_DATA);
+  const loadedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    try {
+      const savedData = localStorage.getItem('cvrd_saved_cv_data');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        queueMicrotask(() => setCvData(parsed));
       }
+    } catch (e) {
+      console.error('Error al cargar datos guardados:', e);
     }
-    return INITIAL_CV_DATA;
-  });
+  }, []);
 
   const [activeTab, setActiveTab] = useState<number>(1);
-  
-  // --- AUTOGUARDADO AUTOMÁTICO EN SEGUNDO PLANO ---
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  const [promoInput, setPromoInput] = useState<string>('');
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  const templateFromUrl = searchParams.get('template');
+  const selectedTemplateKey = templateFromUrl || 'TemplateLaura';
+
+  const paymentStatus = searchParams.get('payment');
+  const unlockedStatus = searchParams.get('unlocked');
+  const isPaid = paymentStatus === 'success' || unlockedStatus === 'true';
+
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(isPaid);
+
   useEffect(() => {
+    if (!loadedRef.current) return;
     try {
       localStorage.setItem('cvrd_saved_cv_data', JSON.stringify(cvData));
     } catch (e) {
       console.error('Error al guardar datos automáticamente:', e);
     }
   }, [cvData]);
-  // ------------------------------------------------
 
-  // 2. Lectura directa de la plantilla desde la URL
-  const templateFromUrl = searchParams.get('template');
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>(
-    templateFromUrl || 'TemplateLaura'
-  );
+  const ActiveTemplateComponent = TEMPLATE_COMPONENTS[selectedTemplateKey] || TEMPLATE_COMPONENTS['basico-01'] || Object.values(TEMPLATE_COMPONENTS)[0];
 
-  // 3. Detección directa del estado de pago desde la URL
-  const paymentStatus = searchParams.get('payment');
-  const isPaid = paymentStatus === 'success';
-
-  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
-  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(isPaid);
-
-  // Obtener el componente de la plantilla activa de forma segura
-  const ActiveTemplateComponent = TEMPLATE_COMPONENTS[selectedTemplateKey] || TemplateLaura;
-
-  // Cálculo del precio basado en la información real de la plantilla en TEMPLATES_LIST
   const getTemplatePrice = (key: string) => {
     const foundTemplate = TEMPLATES_LIST.find((t) => t.id === key);
     if (foundTemplate) {
@@ -65,14 +93,34 @@ function BuilderContent() {
       if (foundTemplate.category === 'premium') return '5.00';
       return '3.00';
     }
-    const lowerKey = key.toLowerCase();
-    if (lowerKey.includes('master') || lowerKey.includes('executivegold')) return '10.00';
-    if (lowerKey.includes('premium') || lowerKey.includes('corporatearch')) return '5.00';
     return '3.00';
   };
   const currentPrice = getTemplatePrice(selectedTemplateKey);
 
-  // Funciones de actualización genéricas para datos personales
+  const handleApplyPromoCode = async () => {
+    try {
+      const response = await fetch('/api/verify-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoInput }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setPromoError(null);
+        setShowPaymentModal(false);
+        setShowSuccessModal(true);
+        router.replace(`/builder?template=${selectedTemplateKey}&unlocked=true`, { scroll: false });
+      } else {
+        setPromoError('Código promocional no válido.');
+      }
+    } catch (err) {
+      console.error('Error al validar código:', err);
+      setPromoError('Ocurrió un error al validar el código.');
+    }
+  };
+
   const handlePersonalChange = (field: string, value: unknown) => {
     setCvData((prev) => ({
       ...prev,
@@ -80,7 +128,35 @@ function BuilderContent() {
     }));
   };
 
-  // Experiencia
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setPhotoError(null);
+
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setPhotoError('La imagen es demasiado pesada. El tamaño máximo permitido es 2 MB.');
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setPhotoError('Formato no válido. Utiliza JPG, PNG, WEBP o GIF.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handlePersonalChange('photoUrl', reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => {
+    handlePersonalChange('photoUrl', '');
+    setPhotoError(null);
+  };
+
   const handleExpChange = (index: number, field: string, value: string) => {
     const updated = [...cvData.experience];
     updated[index] = { ...updated[index], [field]: value };
@@ -99,7 +175,6 @@ function BuilderContent() {
     setCvData({ ...cvData, experience: cvData.experience.filter((_, i) => i !== index) });
   };
 
-  // Educación
   const handleEduChange = (index: number, field: string, value: string) => {
     const updated = [...cvData.education];
     updated[index] = { ...updated[index], [field]: value };
@@ -118,7 +193,6 @@ function BuilderContent() {
     setCvData({ ...cvData, education: cvData.education.filter((_, i) => i !== index) });
   };
 
-  // Habilidades
   const handleSkillChange = (index: number, field: string, value: string) => {
     const updated = [...cvData.skills];
     updated[index] = { ...updated[index], [field]: value as 'técnica' | 'blanda' };
@@ -134,7 +208,6 @@ function BuilderContent() {
     setCvData({ ...cvData, skills: cvData.skills.filter((_, i) => i !== index) });
   };
 
-  // Idiomas
   const handleLangChange = (index: number, field: string, value: string) => {
     const updated = [...cvData.languages];
     updated[index] = { ...updated[index], [field]: value };
@@ -150,7 +223,6 @@ function BuilderContent() {
     setCvData({ ...cvData, languages: cvData.languages.filter((_, i) => i !== index) });
   };
 
-  // Referencias
   const handleRefChange = (index: number, field: string, value: string) => {
     const updated = [...cvData.references];
     updated[index] = { ...updated[index], [field]: value };
@@ -167,11 +239,6 @@ function BuilderContent() {
   };
   const removeReference = (index: number) => {
     setCvData({ ...cvData, references: cvData.references.filter((_, i) => i !== index) });
-  };
-
-  // Función de impresión limpia
-  const handleDownloadPDF = () => {
-    window.print();
   };
 
   return (
@@ -209,12 +276,15 @@ function BuilderContent() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            {/* SELECTOR DINÁMICO DE PLANTILLAS */}
+            {/* SELECTOR DE PLANTILLAS PROFESIONAL FLUIDO */}
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 h-10">
-              <LayoutTemplate className="w-4 h-4 text-gray-500" />
+              <LayoutTemplate className="w-4 h-4 text-amber-500" />
               <select
                 value={selectedTemplateKey}
-                onChange={(e) => setSelectedTemplateKey(e.target.value)}
+                onChange={(e) => {
+                  const newKey = e.target.value;
+                  router.replace(`/builder?template=${newKey}`, { scroll: false });
+                }}
                 className="bg-transparent text-xs font-bold text-gray-900 focus:outline-none cursor-pointer"
               >
                 {TEMPLATES_LIST.map((tpl) => (
@@ -244,31 +314,66 @@ function BuilderContent() {
         {/* COLUMNA IZQUIERDA: FORMULARIOS */}
         <div className="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col h-[calc(100vh-180px)] overflow-y-auto print:hidden">
           
-          {/* PESTAÑA 1: DATOS Y CONTACTO */}
           {activeTab === 1 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
                 <h2 className="font-bold text-gray-900 text-sm tracking-wide">01 — DATOS Y CONTACTO</h2>
               </div>
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-800">Fotografía de Perfil</span>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={cvData.personal.showPhoto}
-                    onChange={(e) => handlePersonalChange('showPhoto', e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded border-gray-300"
-                  />
-                  <span className="text-xs font-medium text-gray-800">Mostrar foto</span>
-                </label>
+              
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-900">Fotografía de Perfil</span>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={cvData.personal.showPhoto ?? true}
+                      onChange={(e) => handlePersonalChange('showPhoto', e.target.checked)}
+                      className="w-4 h-4 text-amber-500 rounded border-gray-300 cursor-pointer"
+                    />
+                    <span className="text-xs font-semibold text-gray-700">Mostrar foto en CV</span>
+                  </label>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <label className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-white border-2 border-dashed border-gray-300 hover:border-amber-500 rounded-xl cursor-pointer text-xs font-bold text-gray-700 transition">
+                      <Upload className="w-4 h-4 text-amber-500" />
+                      <span>{cvData.personal.photoUrl ? 'Cambiar Imagen (Máx. 2MB)' : 'Subir Imagen (Máx. 2MB)'}</span>
+                      <input 
+                        type="file" 
+                        accept=".jpg, .jpeg, .png, .webp, .gif" 
+                        onChange={handlePhotoUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                    {cvData.personal.photoUrl && (
+                      <button
+                        onClick={removePhoto}
+                        className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition cursor-pointer"
+                        title="Eliminar foto"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-gray-500">
+                    Formatos: JPG, PNG, WEBP, GIF. Máximo: 2 MB.
+                  </p>
+                  {photoError && (
+                    <div className="p-2 bg-red-50 border border-red-200 text-red-600 text-[11px] font-semibold rounded-xl">
+                      {photoError}
+                    </div>
+                  )}
+                </div>
               </div>
+
               <div>
                 <label className="block text-[11px] font-bold text-gray-600 uppercase mb-1">Nombre Completo</label>
                 <input
                   type="text"
                   value={cvData.personal.fullName}
                   onChange={(e) => handlePersonalChange('fullName', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
@@ -277,7 +382,7 @@ function BuilderContent() {
                   type="text"
                   value={cvData.personal.title}
                   onChange={(e) => handlePersonalChange('title', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               
@@ -326,10 +431,10 @@ function BuilderContent() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[11px] font-bold text-gray-600 uppercase">Ubicación / Dirección (2 Líneas)</label>
+                <label className="block text-[11px] font-bold text-gray-600 uppercase">Ubicación / Dirección</label>
                 <input
                   type="text"
-                  placeholder="Línea 1: C/ primero #36, Maquiteria"
+                  placeholder="Línea 1: C/ primero #36"
                   value={cvData.personal.location}
                   onChange={(e) => handlePersonalChange('location', e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-900"
@@ -345,7 +450,6 @@ function BuilderContent() {
             </div>
           )}
 
-          {/* PESTAÑA 2: PERFIL */}
           {activeTab === 2 && (
             <div className="space-y-4">
               <div className="border-b pb-3">
@@ -357,13 +461,12 @@ function BuilderContent() {
                   rows={6}
                   value={cvData.profile}
                   onChange={(e) => setCvData({ ...cvData, profile: e.target.value })}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
           )}
 
-          {/* PESTAÑA 3: EXPERIENCIA */}
           {activeTab === 3 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
@@ -375,7 +478,7 @@ function BuilderContent() {
               {cvData.experience.map((exp, idx) => (
                 <div key={exp.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 relative">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-orange-600">PUESTO #{idx + 1}</span>
+                    <span className="text-xs font-bold text-amber-600">PUESTO #{idx + 1}</span>
                     <button onClick={() => removeExperience(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -404,7 +507,7 @@ function BuilderContent() {
                     />
                     <input
                       type="text"
-                      placeholder="Año Fin (o Presente)"
+                      placeholder="Año Fin"
                       value={exp.endDate}
                       onChange={(e) => handleExpChange(idx, 'endDate', e.target.value)}
                       className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
@@ -412,7 +515,7 @@ function BuilderContent() {
                   </div>
                   <textarea
                     rows={3}
-                    placeholder="Descripción de funciones..."
+                    placeholder="Descripción..."
                     value={exp.description}
                     onChange={(e) => handleExpChange(idx, 'description', e.target.value)}
                     className="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs font-semibold text-gray-900"
@@ -422,7 +525,6 @@ function BuilderContent() {
             </div>
           )}
 
-          {/* PESTAÑA 4: EDUCACIÓN */}
           {activeTab === 4 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
@@ -434,7 +536,7 @@ function BuilderContent() {
               {cvData.education.map((edu, idx) => (
                 <div key={edu.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-orange-600">TÍTULO #{idx + 1}</span>
+                    <span className="text-xs font-bold text-amber-600">TÍTULO #{idx + 1}</span>
                     <button onClick={() => removeEducation(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -474,7 +576,6 @@ function BuilderContent() {
             </div>
           )}
 
-          {/* PESTAÑA 5: HABILIDADES */}
           {activeTab === 5 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
@@ -503,7 +604,6 @@ function BuilderContent() {
             </div>
           )}
 
-          {/* PESTAÑA 6: IDIOMAS */}
           {activeTab === 6 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
@@ -523,7 +623,7 @@ function BuilderContent() {
                   />
                   <input
                     type="text"
-                    placeholder="Nivel (Ej. Nativo)"
+                    placeholder="Nivel"
                     value={lang.level}
                     onChange={(e) => handleLangChange(idx, 'level', e.target.value)}
                     className="w-32 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
@@ -534,7 +634,6 @@ function BuilderContent() {
             </div>
           )}
 
-          {/* PESTAÑA 7: REFERENCIAS */}
           {activeTab === 7 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
@@ -546,13 +645,13 @@ function BuilderContent() {
               {cvData.references.map((ref, idx) => (
                 <div key={ref.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-orange-600">REFERENCIA #{idx + 1}</span>
+                    <span className="text-xs font-bold text-amber-600">REFERENCIA #{idx + 1}</span>
                     <button onClick={() => removeReference(idx)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
-                      placeholder="Nombre Completo"
+                      placeholder="Nombre"
                       value={ref.name}
                       onChange={(e) => handleRefChange(idx, 'name', e.target.value)}
                       className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
@@ -568,7 +667,7 @@ function BuilderContent() {
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="text"
-                      placeholder="Cargo / Puesto"
+                      placeholder="Cargo"
                       value={ref.position}
                       onChange={(e) => handleRefChange(idx, 'position', e.target.value)}
                       className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
@@ -583,7 +682,7 @@ function BuilderContent() {
                   </div>
                   <input
                     type="text"
-                    placeholder="Correo Electrónico"
+                    placeholder="Correo"
                     value={ref.email}
                     onChange={(e) => handleRefChange(idx, 'email', e.target.value)}
                     className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
@@ -593,7 +692,6 @@ function BuilderContent() {
             </div>
           )}
 
-          {/* PESTAÑA 8: ENLACES Y EXTRAS PERSONALIZADOS */}
           {activeTab === 8 && (
             <div className="space-y-4">
               <div className="border-b pb-3 flex items-center justify-between">
@@ -631,7 +729,7 @@ function BuilderContent() {
                       </button>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Etiqueta (Ej. LinkedIn, Behance)</label>
+                      <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Etiqueta</label>
                       <input
                         type="text"
                         value={link?.label || ''}
@@ -644,7 +742,7 @@ function BuilderContent() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Enlace Línea 1 (Ej. linkedin.com/in/)</label>
+                      <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Enlace</label>
                       <input
                         type="text"
                         value={link?.url || ''}
@@ -656,30 +754,16 @@ function BuilderContent() {
                         className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
                       />
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Enlace Línea 2 (Opcional - Ej. usuario)</label>
-                      <input
-                        type="text"
-                        value={link?.urlLine2 || ''}
-                        onChange={(e) => {
-                          const updated = [...(cvData.extras?.customLinks || [])];
-                          updated[idx] = { ...updated[idx], urlLine2: e.target.value };
-                          setCvData({ ...cvData, extras: { ...cvData.extras, customLinks: updated } });
-                        }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900"
-                      />
-                    </div>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-6 text-gray-400 text-xs">
-                  No hay enlaces personalizados añadidos. Haz clic en &quot;+ Añadir Enlace&quot; para configurar LinkedIn, Behance, Portafolio, etc.
+                  No hay enlaces añadidos.
                 </div>
               )}
             </div>
           )}
 
-          {/* PESTAÑA 9: ESTILOS Y DISEÑO */}
           {activeTab === 9 && (
             <div className="space-y-6">
               <div className="border-b pb-3">
@@ -770,11 +854,10 @@ function BuilderContent() {
 
         </div>
 
-        {/* COLUMNA DERECHA: VISTA PREVIA DEL LIENZO CON MARCA DE AGUA */}
+        {/* COLUMNA DERECHA: VISTA PREVIA DEL LIENZO */}
         <div className="lg:col-span-7 flex items-center justify-center bg-gray-200/70 rounded-2xl border border-gray-300 p-6 overflow-auto print:p-0 print:m-0 print:block print:bg-white">
-          <div className="shadow-2xl relative">
+          <div id="cv-print-container" className="shadow-2xl relative bg-white">
             
-            {/* MARCA DE AGUA DE SEGURIDAD (Se muestra si no ha pagado) */}
             {!isPaid && (
               <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center overflow-hidden">
                 <div className="transform -rotate-45 text-gray-400/30 text-4xl font-black uppercase tracking-widest whitespace-nowrap select-none border-4 border-gray-400/30 px-8 py-4 rounded-3xl">
@@ -783,24 +866,23 @@ function BuilderContent() {
               </div>
             )}
 
-            {/* RENDERIZADO DINÁMICO DE LA PLANTILLA SELECCIONADA */}
-            <ActiveTemplateComponent data={cvData} />
+            {isClient && <ActiveTemplateComponent data={cvData} />}
           </div>
         </div>
 
       </div>
 
-      {/* MODAL DE CONFIRMACIÓN PREVIA */}
+      {/* MODAL DE ADVERTENCIA / VERIFICACIÓN (DISEÑO CORPORATIVO Y ELEGANTE) */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 print:hidden">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 text-center animate-in fade-in zoom-in duration-200">
-            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl font-black">
-              ⚠️
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 text-center animate-in fade-in zoom-in duration-200 border border-gray-100">
+            <div className="w-14 h-14 bg-gray-900 text-amber-400 rounded-2xl flex items-center justify-center mx-auto shadow-md">
+              <ShieldCheck className="w-7 h-7" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-black text-gray-900">¿Todo está correctamente bien?</h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Por favor, revisa que tu ortografía, teléfono y datos profesionales estén correctos en la vista previa antes de proceder con el desbloqueo y descarga de tu currículum.
+              <h3 className="text-xl font-black text-gray-900">Verifica tus datos antes de continuar</h3>
+              <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                Asegúrate de que tu información profesional esté completa y sin errores antes de proceder al desbloqueo y descarga de tu currículum.
               </p>
             </div>
             <div className="flex gap-3 pt-2">
@@ -819,9 +901,9 @@ function BuilderContent() {
                     setShowPaymentModal(true);
                   }
                 }}
-                className="flex-1 py-3 bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 bg-gray-900 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <span>Sí, continuar</span>
+                <span>Continuar</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -829,12 +911,11 @@ function BuilderContent() {
         </div>
       )}
 
-      {/* MODAL CON LOS BOTONES OFICIALES DE PAYPAL Y TARJETA */}
+      {/* MODAL DE PAYPAL CON CÓDIGO PROMOCIONAL BLINDADO (SIN EJEMPLOS) */}
       {showPaymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 print:hidden">
           <div className="bg-[#0f0f11] text-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-gray-800 animate-in fade-in zoom-in duration-200">
             
-            {/* ENCABEZADO Y PRECIO ESTIMADO */}
             <div className="flex items-center justify-between border-b border-gray-800 pb-4">
               <div>
                 <h3 className="text-base font-black text-white">Total Estimado:</h3>
@@ -845,7 +926,6 @@ function BuilderContent() {
               </span>
             </div>
 
-            {/* BOTONES OFICIALES DE PAYPAL */}
             <div className="space-y-3 pt-2">
               <PayPalScriptProvider
                 options={{
@@ -889,7 +969,33 @@ function BuilderContent() {
               </PayPalScriptProvider>
             </div>
 
-            {/* PIE Y BOTÓN CANCELAR */}
+            {/* CÓDIGO PROMOCIONAL SIN NINGUNA PISTA NI EJEMPLO */}
+            <div className="pt-4 border-t border-gray-800 space-y-2">
+              <label className="flex items-center gap-1.5 text-xs font-bold text-gray-300 uppercase">
+                <Tag className="w-3.5 h-3.5 text-amber-500" />
+                <span>¿Tienes un código promocional?</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Introduce tu código"
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value)}
+                  className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-bold focus:outline-none focus:border-amber-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPromoCode}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs rounded-xl transition cursor-pointer"
+                >
+                  Aplicar
+                </button>
+              </div>
+              {promoError && (
+                <p className="text-[11px] text-red-500 font-semibold">{promoError}</p>
+              )}
+            </div>
+
             <div className="text-center pt-2 border-t border-gray-800/60">
               <button
                 onClick={() => setShowPaymentModal(false)}
@@ -903,7 +1009,7 @@ function BuilderContent() {
         </div>
       )}
 
-      {/* MODAL DE ÉXITO DE PAGO */}
+      {/* MODAL DE ÉXITO Y DESCARGA DINÁMICA */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 print:hidden">
           <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 text-center animate-in fade-in zoom-in duration-200">
@@ -911,26 +1017,30 @@ function BuilderContent() {
               <CheckCircle className="w-8 h-8" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-black text-gray-900">¡Pago Confirmado con Éxito!</h3>
+              <h3 className="text-xl font-black text-gray-900">¡Acceso Concedido con Éxito!</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Tu currículum está listo y optimizado para filtros ATS. 
+                Tu currículum está listo para descargarse en formato vectorial HD de alta calidad.
               </p>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 font-medium">
-                🎉 ¡Muchas gracias por elegir nuestra plataforma CVRD.DO! Te deseamos el mayor de los éxitos en tu búsqueda de empleo. ¡A por ese puesto!
+                🎉 ¡Gracias por elegir CVRD.DO! Mucho éxito en tu búsqueda de empleo.
               </div>
             </div>
 
             <div className="space-y-2 pt-2">
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  handleDownloadPDF();
-                }}
-                className="w-full py-3.5 bg-gray-900 hover:bg-amber-400 hover:text-gray-950 text-white font-black text-xs rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Descargar PDF Listo para Imprimir</span>
-              </button>
+              {isPaid ? (
+                <PDFDownloadButton cvData={cvData} />
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setShowPaymentModal(true);
+                  }}
+                  className="w-full py-3.5 bg-amber-500 text-gray-950 font-black text-xs rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  Desbloquear Descarga
+                </button>
+              )}
+
               <button
                 onClick={() => setShowSuccessModal(false)}
                 className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition cursor-pointer"
@@ -942,7 +1052,6 @@ function BuilderContent() {
         </div>
       )}
 
-      {/* REGLAS CSS GLOBALES DE IMPRESIÓN */}
       <style jsx global>{`
         @media print {
           body {
@@ -962,7 +1071,6 @@ function BuilderContent() {
   );
 }
 
-// Envoltorio con Suspense obligatorio en Next.js App Router para el uso de useSearchParams
 export default function BuilderPage() {
   return (
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center font-bold text-sm">Cargando editor...</div>}>

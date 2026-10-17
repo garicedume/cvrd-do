@@ -51,7 +51,7 @@ export default function PlantillasPage() {
         <PromoBanner id="promocion_01" altText="Promoción Plantillas 1" />
       </div>
 
-      {/* Barra de Filtros y Buscador (Incluyendo botón Master) */}
+      {/* Barra de Filtros y Buscador */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/85 backdrop-blur-md p-4 rounded-3xl border border-gray-200/80 shadow-sm">
         
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
