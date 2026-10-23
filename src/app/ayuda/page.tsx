@@ -21,7 +21,7 @@ export default function AyudaPage() {
         {/* HEADER / ENCABEZADO */}
         <div className="text-center space-y-3">
           <p className="text-xs font-extrabold text-[#e06b2f] uppercase tracking-widest">
-            CENTRO DE SOPORTE
+
           </p>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight">
             Estamos aquí para ayudarte
