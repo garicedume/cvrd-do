@@ -17,6 +17,59 @@ import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
 import { ImportBanner } from '@/components/ui/ImportBanner';
 import { ImportCVModal } from '@/components/builder/ImportCVModal';
 
+// COMPONENTE DE NIEVE NAVIDEÑA ULTRA LIGERO (CSS PURO)
+function SnowEffect() {
+  const snowflakes = Array.from({ length: 35 });
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+      {snowflakes.map((_, i) => {
+        const randomLeft = Math.random() * 100;
+        const randomAnimationDuration = 5 + Math.random() * 7; 
+        const randomDelay = Math.random() * 5; 
+        const randomSize = 3 + Math.random() * 5; 
+
+        return (
+          <span
+            key={i}
+            className="absolute bg-white rounded-full opacity-80 animate-fall"
+            style={{
+              left: `${randomLeft}%`,
+              top: `-10px`,
+              width: `${randomSize}px`,
+              height: `${randomSize}px`,
+              animationDuration: `${randomAnimationDuration}s`,
+              animationDelay: `${randomDelay}s`,
+              animationIterationCount: 'infinite',
+              animationTimingFunction: 'linear',
+            }}
+          />
+        );
+      })}
+
+      <style jsx global>{`
+        @keyframes fall {
+          0% {
+            transform: translateY(-10px) translateX(0);
+            opacity: 0.8;
+          }
+          50% {
+            transform: translateY(50vh) translateX(15px);
+            opacity: 0.5;
+          }
+          100% {
+            transform: translateY(105vh) translateX(-15px);
+            opacity: 0.1;
+          }
+        }
+        .animate-fall {
+          animation-name: fall;
+        }
+      `}</style>
+    </div>
+  );
+}
+
 // Inicializar cliente de Supabase (reemplaza o usa tus variables de entorno)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'TU_SUPABASE_URL';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'TU_SUPABASE_ANON_KEY';
@@ -108,14 +161,17 @@ export default function HomePage() {
 
   return (
     <div 
-      className="min-h-screen bg-white text-gray-900 space-y-24 pb-20 font-poppins select-none"
+      className="min-h-screen bg-white text-gray-900 space-y-24 pb-20 font-poppins select-none relative overflow-hidden"
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
       
       {/* FRANJA 1: HERO SECTION */}
       <section className="relative pt-4 md:pt-8 pb-12 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Efecto de nieve navideño ultra ligero integrado en el Hero */}
+        <SnowEffect />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             
             <div className="lg:col-span-7 space-y-6 text-left">
