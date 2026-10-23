@@ -5,6 +5,46 @@ import { Send, CheckCircle2 } from 'lucide-react';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Estados para los campos del formulario
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [transaccion, setTransaccion] = useState('');
+  const [mensaje, setMensaje] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Conexión con la API global de contacto
+      const response = await fetch('/api/contacto-global', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          contacto: email,
+          mensaje,
+          transaccion: transaccion || 'N/A',
+          tipo: 'Soporte Técnico / Reclamación'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitted(true);
+      } else {
+        alert('Hubo un error al enviar el mensaje. Inténtalo de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error de red:', err);
+      alert('Error de conexión con el servidor.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div 
@@ -26,30 +66,61 @@ export default function ContactPage() {
             <p className="text-xs text-emerald-800">Hemos registrado tu consulta. Te responderemos directamente a tu correo electrónico.</p>
           </div>
         ) : (
-          <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-4 text-xs font-medium">
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs font-medium">
             <div>
               <label className="font-bold text-gray-700">Nombre Completo</label>
-              <input type="text" required placeholder="Ej. Carlos Mendoza" className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" />
+              <input 
+                type="text" 
+                required 
+                placeholder="Ej. Carlos Mendoza" 
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" 
+              />
             </div>
 
             <div>
               <label className="font-bold text-gray-700">Correo Electrónico</label>
-              <input type="email" required placeholder="tu@email.com" className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" />
+              <input 
+                type="email" 
+                required 
+                placeholder="tu@email.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" 
+              />
             </div>
 
             <div>
               <label className="font-bold text-gray-700">ID de Transacción de PayPal (Si aplica)</label>
-              <input type="text" placeholder="Ej. 9XX12345YY67890" className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" />
+              <input 
+                type="text" 
+                placeholder="Ej. 9XX12345YY67890" 
+                value={transaccion}
+                onChange={(e) => setTransaccion(e.target.value)}
+                className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" 
+              />
             </div>
 
             <div>
               <label className="font-bold text-gray-700">Mensaje o Reclamación</label>
-              <textarea rows={4} required placeholder="Describe tu consulta o incidencia..." className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" />
+              <textarea 
+                rows={4} 
+                required 
+                placeholder="Describe tu consulta o incidencia..." 
+                value={mensaje}
+                onChange={(e) => setMensaje(e.target.value)}
+                className="mt-1 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-amber-400 select-text" 
+              />
             </div>
 
-            <button type="submit" className="w-full py-3.5 bg-gray-900 hover:bg-amber-400 hover:text-gray-950 text-white font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full py-3.5 bg-gray-900 hover:bg-amber-400 hover:text-gray-950 text-white font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
               <Send className="w-4 h-4" />
-              <span>Enviar Mensaje a Soporte</span>
+              <span>{loading ? 'Enviando mensaje...' : 'Enviar Mensaje a Soporte'}</span>
             </button>
           </form>
         )}

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { Building2, Lock, ArrowRight, CheckCircle2, LogOut, FileCheck, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Building2, Lock, ArrowRight, CheckCircle2, LogOut, FileCheck, ShieldCheck, RefreshCw, Mail, X } from 'lucide-react';
 
 export default function AccesoSeguroPage() {
   const { user, isB2B, loginB2B, logout, loading } = useAuth();
@@ -12,6 +12,12 @@ export default function AccesoSeguroPage() {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Estados para el modal de contacto rápido B2B
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactoForm, setContactoForm] = useState({ nombre: '', contacto: '', mensaje: '' });
+  const [enviadoContacto, setEnviadoContacto] = useState(false);
+  const [enviandoMensaje, setEnviandoMensaje] = useState(false);
 
   // --- Timeout de seguridad para evitar bucle infinito de carga visual ---
   const [forceReady, setForceReady] = useState(false);
@@ -73,6 +79,38 @@ export default function AccesoSeguroPage() {
       generateCaptcha();
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Función para enviar el mensaje de contacto B2B a la API global
+  const handleContactoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEnviandoMensaje(true);
+
+    try {
+      const response = await fetch('/api/contacto-global', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: contactoForm.nombre,
+          contacto: contactoForm.contacto,
+          mensaje: contactoForm.mensaje,
+          tipo: 'Solicitud Alianza / Registro B2B (Acceso Seguro)'
+        }),
+      });
+
+      const resultado = await response.json();
+
+      if (response.ok && resultado.success) {
+        setEnviadoContacto(true);
+      } else {
+        alert('Hubo un error al enviar el mensaje. Intenta de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error de red:', err);
+      alert('Error de conexión con el servidor.');
+    } finally {
+      setEnviandoMensaje(false);
     }
   };
 
@@ -178,9 +216,12 @@ export default function AccesoSeguroPage() {
 
             <div className="pt-6 border-t border-gray-800 text-xs text-gray-400 space-y-1">
               <p>¿Deseas registrar tu centro de internet o agencia?</p>
-              <a href="mailto:nubellstore@gmail.com" className="text-amber-400 font-bold underline select-text inline-block">
+              <button 
+                onClick={() => setIsContactModalOpen(true)}
+                className="text-amber-400 font-bold underline select-text inline-block cursor-pointer hover:text-amber-300 transition"
+              >
                 Contáctanos vía correo
-              </a>
+              </button>
             </div>
           </div>
 
@@ -274,6 +315,94 @@ export default function AccesoSeguroPage() {
             </form>
           </div>
 
+        </div>
+      )}
+
+      {/* MODAL DE CONTACTO RÁPIDO B2B */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 relative border border-gray-100">
+            <button
+              onClick={() => setIsContactModalOpen(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 rounded-full cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {enviadoContacto ? (
+              <div className="text-center py-8 space-y-3">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+                <h3 className="text-lg font-black text-gray-900">¡Mensaje Enviado con Éxito!</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Hemos recibido tu solicitud de alianza. Nos pondremos en contacto contigo a la brevedad posible.
+                </p>
+                <button
+                  onClick={() => {
+                    setEnviadoContacto(false);
+                    setIsContactModalOpen(false);
+                  }}
+                  className="mt-4 px-6 py-2.5 bg-gray-900 text-white text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleContactoSubmit} className="space-y-4">
+                <div className="flex items-center gap-3 border-b pb-3">
+                  <div className="p-2.5 bg-amber-100 rounded-xl text-amber-800">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-gray-900 text-sm">Registro de Agencia / Centro</h3>
+                    <p className="text-[11px] text-gray-500">Solicita tu acceso corporativo B2B</p>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-700 uppercase">Nombre o Negocio</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. Centro Digital Santiago"
+                    value={contactoForm.nombre}
+                    onChange={(e) => setContactoForm({ ...contactoForm, nombre: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-amber-400 select-text"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-700 uppercase">Correo o WhatsApp</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="tucorreo@ejemplo.com o teléfono"
+                    value={contactoForm.contacto}
+                    onChange={(e) => setContactoForm({ ...contactoForm, contacto: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-amber-400 select-text"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-700 uppercase">Mensaje (Opcional)</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Cuéntanos cuántos CVs imprimes al mes o tus necesidades..."
+                    value={contactoForm.mensaje}
+                    onChange={(e) => setContactoForm({ ...contactoForm, mensaje: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-amber-400 select-text"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={enviandoMensaje}
+                  className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {enviandoMensaje ? 'Enviando solicitud...' : 'Enviar Solicitud a Soporte'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       )}
 

@@ -78,12 +78,39 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default function HomePage() {
   const [b2bForm, setB2bForm] = useState({ nombre: '', negocio: '', contacto: '', mensaje: '' });
   const [b2bEnviado, setB2bEnviado] = useState(false);
+  const [enviandoB2b, setEnviandoB2b] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  // Función de envío B2B
-  const handleB2bSubmit = (e: React.FormEvent) => {
+  // Función de envío B2B conectada a la API global
+  const handleB2bSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setB2bEnviado(true);
+    setEnviandoB2b(true);
+
+    try {
+      const response = await fetch('/api/contacto-global', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: b2bForm.nombre,
+          contacto: b2bForm.contacto,
+          mensaje: `Negocio: ${b2bForm.negocio || 'No especificado'}. Solicitud de acceso empresarial B2B desde el Home.`,
+          tipo: 'Portal B2B (Home)'
+        }),
+      });
+
+      const resultado = await response.json();
+
+      if (response.ok && resultado.success) {
+        setB2bEnviado(true);
+      } else {
+        alert('Hubo un error al enviar la solicitud. Intenta de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error de red:', err);
+      alert('Error de conexión con el servidor.');
+    } finally {
+      setEnviandoB2b(false);
+    }
   };
 
   // Función de Subida y Seguridad 200% para CVs (Anti-spam, Tamaño max 5MB, Tipos MIME reales)
@@ -393,10 +420,11 @@ export default function HomePage() {
                   />
                   <button
                     type="submit"
-                    className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-gray-950 font-bold text-xs rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md active:scale-95 cursor-pointer"
+                    disabled={enviandoB2b}
+                    className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-gray-950 font-bold text-xs rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    Enviar Solicitud B2B
+                    <span>{enviandoB2b ? 'Enviando...' : 'Enviar Solicitud B2B'}</span>
                   </button>
                 </form>
               )}
