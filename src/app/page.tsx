@@ -17,25 +17,25 @@ import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
 import { ImportBanner } from '@/components/ui/ImportBanner';
 import { ImportCVModal } from '@/components/builder/ImportCVModal';
 
-// COMPONENTE DE NIEVE NAVIDEÑA ULTRA LIGERO (CSS PURO)
+// COMPONENTE DE NIEVE NAVIDEÑA OPTIMIZADO (FIJO EN TODA LA PANTALLA)
 function SnowEffect() {
-  const snowflakes = Array.from({ length: 35 });
+  const snowflakes = Array.from({ length: 40 });
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
       {snowflakes.map((_, i) => {
         const randomLeft = Math.random() * 100;
-        const randomAnimationDuration = 5 + Math.random() * 7; 
+        const randomAnimationDuration = 6 + Math.random() * 8; // Entre 6s y 14s (caída suave)
         const randomDelay = Math.random() * 5; 
-        const randomSize = 3 + Math.random() * 5; 
+        const randomSize = 4 + Math.random() * 4; // Entre 4px y 8px
 
         return (
           <span
             key={i}
-            className="absolute bg-white rounded-full opacity-80 animate-fall"
+            className="absolute bg-white rounded-full opacity-80 animate-fall shadow-[0_0_8px_white]"
             style={{
               left: `${randomLeft}%`,
-              top: `-10px`,
+              top: `-20px`,
               width: `${randomSize}px`,
               height: `${randomSize}px`,
               animationDuration: `${randomAnimationDuration}s`,
@@ -50,15 +50,15 @@ function SnowEffect() {
       <style jsx global>{`
         @keyframes fall {
           0% {
-            transform: translateY(-10px) translateX(0);
+            transform: translateY(-20px) translateX(0);
             opacity: 0.8;
           }
           50% {
-            transform: translateY(50vh) translateX(15px);
-            opacity: 0.5;
+            transform: translateY(50vh) translateX(20px);
+            opacity: 0.6;
           }
           100% {
-            transform: translateY(105vh) translateX(-15px);
+            transform: translateY(105vh) translateX(-20px);
             opacity: 0.1;
           }
         }
@@ -193,11 +193,11 @@ export default function HomePage() {
       onDragStart={(e) => e.preventDefault()}
     >
       
+      {/* EFECTO DE NIEVE GLOBAL (Flota sobre toda la página) */}
+      <SnowEffect />
+
       {/* FRANJA 1: HERO SECTION */}
       <section className="relative pt-4 md:pt-8 pb-12 overflow-hidden">
-        {/* Efecto de nieve navideño ultra ligero integrado en el Hero */}
-        <SnowEffect />
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             
