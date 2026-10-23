@@ -13,7 +13,6 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
 
-  // REGLAS DE ORO 7 Y 8: Tono oscuro/carbón elegante para textos e íconos y fondo gris suave minimalista de la muestra
   const accentColor = styles?.accentColor || '#262626'; 
   const lightGrayBg = '#f2f2f2';
 
@@ -28,18 +27,18 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
       }}
     >
       {/* ========================================================================= */}
-      {/* 1. COLUMNA IZQUIERDA (36% ANCHO) - FOTO, CONTACTO, EDUCACIÓN Y PREMIOS   */}
+      {/* 1. COLUMNA IZQUIERDA (36% ANCHO)                                          */}
       {/* ========================================================================= */}
-      <div className="w-[36%] h-full flex flex-col justify-between p-7 pr-4 shrink-0 relative box-border">
+      <div className="w-[36%] h-full flex flex-col justify-between p-6 pr-4 shrink-0 relative box-border">
         
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-5">
           
-          {/* FOTO CIRCULAR - REGLAS DE ORO 3, 5 Y 9: 150px x 150px CON RESPIRACIÓN */}
+          {/* FOTO CIRCULAR (140px x 140px) */}
           {personal?.showPhoto && (
             <div className="flex justify-start pt-1">
               <div 
                 className="rounded-full overflow-hidden shadow-md flex items-center justify-center shrink-0 bg-gray-300 border-2 border-white"
-                style={{ width: '150px', height: '150px' }}
+                style={{ width: '140px', height: '140px' }}
               >
                 {personal?.photoUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
@@ -49,14 +48,14 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
                     className="w-full h-full object-cover filter grayscale contrast-105" 
                   />
                 ) : (
-                  <span className="text-[10px] text-gray-500 font-bold tracking-widest">FOTO</span>
+                  <span className="text-[12px] text-gray-500 font-bold tracking-widest">FOTO</span>
                 )}
               </div>
             </div>
           )}
 
-          {/* DATOS DE CONTACTO (TEXTO A 12px E ÍCONOS A 14px - REGLA DE ORO 2: 100% ESPAÑOL) */}
-          <div className="space-y-3 pt-2 text-[12px] text-gray-800 font-light">
+          {/* DATOS DE CONTACTO (A 12px) */}
+          <div className="space-y-2.5 pt-1 text-[12px] text-gray-800 font-light">
             {personal?.phone && (
               <div className="flex items-center gap-3">
                 <span className="font-bold text-[14px] shrink-0" style={{ color: accentColor }}>📞</span>
@@ -66,28 +65,28 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
             {personal?.email && (
               <div className="flex items-center gap-3">
                 <span className="font-bold text-[14px] shrink-0" style={{ color: accentColor }}>✉️</span>
-                <span className="truncate font-medium" style={{ maxWidth: '180px' }}>{personal.email}</span>
+                <span className="truncate font-medium" style={{ maxWidth: '190px' }}>{personal.email}</span>
               </div>
             )}
             {extras?.linkedin && (
               <div className="flex items-center gap-3">
                 <span className="font-bold text-[14px] shrink-0" style={{ color: accentColor }}>💼</span>
-                <span className="truncate font-medium" style={{ maxWidth: '180px' }}>{extras.linkedin}</span>
+                <span className="truncate font-medium" style={{ maxWidth: '190px' }}>{extras.linkedin}</span>
               </div>
             )}
             {personal?.location && (
               <div className="flex items-center gap-3">
                 <span className="font-bold text-[14px] shrink-0" style={{ color: accentColor }}>📍</span>
-                <span className="truncate font-medium" style={{ maxWidth: '180px' }}>{personal.location}</span>
+                <span className="truncate font-medium" style={{ maxWidth: '190px' }}>{personal.location}</span>
               </div>
             )}
           </div>
 
           <div className="w-full h-px bg-gray-300 my-1"></div>
 
-          {/* SECCIÓN: EDUCACIÓN */}
+          {/* EDUCACIÓN */}
           {education && education.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <h3 
                 className="font-extrabold text-[13px] uppercase tracking-[0.15em]"
                 style={{ color: accentColor }}
@@ -95,16 +94,16 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
                 Educación
               </h3>
               
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {education.map((edu) => (
                   <div key={edu.id} className="space-y-0.5">
-                    <h4 className="font-bold text-gray-900 text-[11px] leading-tight uppercase">
+                    <h4 className="font-bold text-gray-900 text-[12px] leading-tight uppercase">
                       {edu.degree}
                     </h4>
-                    <p className="text-[10px] text-gray-600 font-medium">
+                    <p className="text-[12px] text-gray-600 font-medium">
                       {edu.institution}
                     </p>
-                    <p className="text-[9.5px] font-semibold text-gray-500">
+                    <p className="text-[11.5px] font-semibold text-gray-500">
                       {edu.startDate} – {edu.endDate}
                     </p>
                   </div>
@@ -113,9 +112,9 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
             </div>
           )}
 
-          {/* SECCIÓN: REFERENCIAS O PREMIOS */}
+          {/* REFERENCIAS */}
           {references && references.length > 0 && (
-            <div className="space-y-3 pt-1">
+            <div className="space-y-2.5 pt-1">
               <h3 
                 className="font-extrabold text-[13px] uppercase tracking-[0.15em]"
                 style={{ color: accentColor }}
@@ -123,12 +122,12 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
                 Referencias
               </h3>
 
-              <div className="space-y-2.5 text-[10px]">
+              <div className="space-y-2 text-[12px]">
                 {references.map((ref) => (
                   <div key={ref.id} className="space-y-0.5">
-                    <p className="font-bold text-gray-900 text-[10.5px]">{ref.name}</p>
-                    <p className="text-gray-600 text-[9.5px]">{ref.position} {ref.company ? `- ${ref.company}` : ''}</p>
-                    {ref.phone && <p className="text-gray-500 text-[9px]">Tel: {ref.phone}</p>}
+                    <p className="font-bold text-gray-900 text-[12px]">{ref.name}</p>
+                    <p className="text-gray-600 text-[12px]">{ref.position} {ref.company ? `- ${ref.company}` : ''}</p>
+                    {ref.phone && <p className="text-gray-500 text-[11.5px]">Tel: {ref.phone}</p>}
                   </div>
                 ))}
               </div>
@@ -137,21 +136,20 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
 
         </div>
 
-        <div className="text-[8.5px] text-gray-400 tracking-widest uppercase pt-2">
-          CVRD.DO — Edition
+        <div className="text-[11px] text-gray-400 tracking-widest uppercase pt-2">
+          CVRD.DO — Edición
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. COLUMNA DERECHA PRINCIPAL (64% ANCHO) CON LÍNEA DIVISORIA VERTICAL     */}
+      {/* 2. COLUMNA DERECHA PRINCIPAL (64% ANCHO)                                  */}
       {/* ========================================================================= */}
-      <div className="w-[64%] h-full flex flex-col justify-between p-8 pl-6 border-l border-gray-300 box-border">
+      <div className="w-[64%] h-full flex flex-col justify-between p-7 pl-6 border-l border-gray-300 box-border">
         
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-5">
           
-          {/* ENCABEZADO CON NOMBRE EN 53px SOBRE LÍNEA DIVISIONAL */}
-          <div className="border-b border-gray-400 pb-4">
-            {/* REGLA DE ORO 1: NOMBRE A EXACTAMENTE 53px */}
+          {/* ENCABEZADO */}
+          <div className="border-b border-gray-400 pb-3">
             <h1 
               className="tracking-tight leading-none uppercase font-black flex flex-wrap gap-x-3 items-baseline"
               style={{ fontSize: '53px', color: accentColor }}
@@ -160,14 +158,14 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
               <span className="font-light">{lastName}</span>
             </h1>
 
-            <p className="text-[12px] font-bold uppercase tracking-[0.2em] mt-2.5 text-gray-700">
+            <p className="text-[13px] font-bold uppercase tracking-[0.2em] mt-2 text-gray-700">
               {personal?.title || 'Administradora Bancaria / Ejecutiva'}
             </p>
           </div>
 
-          {/* SECCIÓN: SOBRE MÍ / PERFIL PROFESIONAL */}
+          {/* SOBRE MÍ */}
           {profile && (
-            <div className="space-y-2 relative pl-4 border-l-2 border-gray-800">
+            <div className="space-y-1.5 relative pl-4 border-l-2 border-gray-800">
               <span 
                 className="absolute top-1.5 w-2 h-2 rounded-full"
                 style={{ backgroundColor: accentColor, left: '-5px' }}
@@ -178,16 +176,15 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
               >
                 Sobre Mí
               </h3>
-              {/* REGLA DE ORO 6: TEXTO JUSTIFICADO */}
-              <p className="text-gray-700 leading-relaxed text-[10.5px] text-justify font-light">
+              <p className="text-gray-700 leading-relaxed text-[12px] text-justify font-light">
                 {profile}
               </p>
             </div>
           )}
 
-          {/* SECCIÓN: EXPERIENCIA LABORAL */}
+          {/* EXPERIENCIA LABORAL */}
           {experience && experience.length > 0 && (
-            <div className="space-y-3 relative pl-4 border-l-2 border-gray-800">
+            <div className="space-y-2.5 relative pl-4 border-l-2 border-gray-800">
               <span 
                 className="absolute top-1.5 w-2 h-2 rounded-full"
                 style={{ backgroundColor: accentColor, left: '-5px' }}
@@ -199,16 +196,16 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
                 Experiencia Laboral
               </h3>
 
-              <div className="space-y-4 pt-1">
+              <div className="space-y-3 pt-1">
                 {experience.map((exp) => (
                   <div key={exp.id} className="space-y-1">
-                    <span className="text-[9.5px] font-bold text-gray-500">
+                    <span className="text-[11.5px] font-bold text-gray-500">
                       {exp.startDate} – {exp.endDate}
                     </span>
-                    <h4 className="font-bold text-gray-900 text-[11px] uppercase tracking-wide">
+                    <h4 className="font-bold text-gray-900 text-[12px] uppercase tracking-wide">
                       {exp.role} — <span className="font-semibold text-gray-600">{exp.company}</span>
                     </h4>
-                    <p className="text-gray-700 leading-relaxed text-[10px] text-justify font-light whitespace-pre-line pt-0.5">
+                    <p className="text-gray-700 leading-relaxed text-[12px] text-justify font-light whitespace-pre-line pt-0.5">
                       {exp.description}
                     </p>
                   </div>
@@ -217,9 +214,9 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
             </div>
           )}
 
-          {/* SECCIÓN: IDIOMAS (REPRESENTACIÓN MEDIANTE PUNTOS / DOT RATINGS COMO EN LA MUESTRA) */}
+          {/* IDIOMAS */}
           {languages && languages.length > 0 && (
-            <div className="space-y-3 relative pl-4 border-l-2 border-gray-800">
+            <div className="space-y-2.5 relative pl-4 border-l-2 border-gray-800">
               <span 
                 className="absolute top-1.5 w-2 h-2 rounded-full"
                 style={{ backgroundColor: accentColor, left: '-5px' }}
@@ -231,30 +228,22 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
                 Idiomas
               </h3>
 
-              <div className="space-y-2 text-[10px] pt-1">
+              <div className="space-y-2 text-[12px] pt-1">
                 {languages.map((lang) => (
                   <div key={lang.id} className="grid grid-cols-12 items-center gap-2">
                     <span className="col-span-4 font-bold text-gray-800 uppercase tracking-wide">{lang.name}</span>
-                    <div className="col-span-8 flex gap-1.5 items-center">
-                      {Array.from({ length: 10 }).map((_, i) => (
-                        <span 
-                          key={i} 
-                          className="w-2 h-2 rounded-full inline-block"
-                          style={{ backgroundColor: i < 7 ? accentColor : '#cbd5e1' }}
-                        />
-                      ))}
-                    </div>
+                    <span className="col-span-8 font-semibold text-gray-600">{lang.level || 'Avanzado'}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* SECCIÓN: HABILIDADES */}
+          {/* HABILIDADES CLAVE */}
           {skills && skills.length > 0 && (
             <div className="space-y-2 pt-1">
               <h3 
-                className="font-bold text-[11px] uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1"
+                className="font-bold text-[13px] uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-1"
               >
                 Habilidades Clave
               </h3>
@@ -262,7 +251,7 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
                 {skills.map((skill) => (
                   <span 
                     key={skill.id}
-                    className="px-2.5 py-1 bg-white border border-gray-300 rounded text-[9.5px] font-medium text-gray-800 shadow-2xs"
+                    className="px-2.5 py-1 bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-800 shadow-2xs"
                   >
                     {skill.name}
                   </span>
@@ -273,10 +262,10 @@ export default function TemplateMasterPinnacleGrid({ data }: Props) {
 
         </div>
 
-        {/* PIE DE PÁGINA MÍNIMO */}
-        <div className="w-full pt-3 border-t border-gray-300 flex justify-between items-center text-[9.5px] text-gray-400 tracking-widest uppercase mt-2">
+        {/* PIE DE PÁGINA */}
+        <div className="w-full pt-2 border-t border-gray-300 flex justify-between items-center text-[11px] text-gray-400 tracking-widest uppercase mt-2">
           <span>Template Master Pinnacle Grid</span>
-          <span>CVRD.DO — Exclusive Edition</span>
+          <span>CVRD.DO — Edición Exclusiva</span>
         </div>
 
       </div>

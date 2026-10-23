@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { INITIAL_CV_DATA, CVData } from '@/types/cv';
 import { TEMPLATE_COMPONENTS } from '@/lib/templateRegistry';
 import { TEMPLATES_LIST } from '@/lib/templatesData';
-import { Download, CheckCircle, ArrowRight, LayoutTemplate, Upload, Trash2, ShieldCheck, Eye, Edit3, X } from 'lucide-react';
+import { Download, CheckCircle, ArrowRight, LayoutTemplate, Upload, Trash2, ShieldCheck, Eye, Edit3, X, ChevronDown, Check } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import dynamic from 'next/dynamic';
 import { CVDocument } from '@/components/pdf/CVDocument';
@@ -76,6 +76,22 @@ function BuilderContent() {
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(isPaid);
 
+  // ESTADOS PARA EL SELECTOR / FILTRO DE PLANTILLAS ORDENADO
+  const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState<boolean>(false);
+  const [templateFilterCategory, setTemplateFilterCategory] = useState<string>('all');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar desplegable al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsTemplateDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   useEffect(() => {
     if (!loadedRef.current) return;
     try {
@@ -97,6 +113,26 @@ function BuilderContent() {
     return '3.00';
   };
   const currentPrice = getTemplatePrice(selectedTemplateKey);
+
+  const currentSelectedTemplateObj = TEMPLATES_LIST.find((t) => t.id === selectedTemplateKey);
+
+  // FILTRADO INTELIGENTE Y FLEXIBLE DE PLANTILLAS
+  const filteredTemplates = TEMPLATES_LIST.filter((tpl) => {
+    if (templateFilterCategory === 'all') return true;
+    
+    const cat = (tpl.category || '').toLowerCase();
+    
+    if (templateFilterCategory === 'basico') {
+      return cat.includes('basic') || cat.includes('basico') || cat === 'free' || (!cat.includes('premium') && !cat.includes('master'));
+    }
+    if (templateFilterCategory === 'premium') {
+      return cat.includes('premium') || cat.includes('pro');
+    }
+    if (templateFilterCategory === 'master') {
+      return cat.includes('master') || cat.includes('executive') || cat.includes('ultimate');
+    }
+    return true;
+  });
 
   const handleApplyPromoCode = async () => {
     try {
@@ -280,23 +316,98 @@ function BuilderContent() {
           </div>
 
           <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3 shrink-0">
-            {/* SELECTOR DE PLANTILLAS */}
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 h-10">
-              <LayoutTemplate className="w-4 h-4 text-amber-500 shrink-0" />
-              <select
-                value={selectedTemplateKey}
-                onChange={(e) => {
-                  const newKey = e.target.value;
-                  router.replace(`/builder?template=${newKey}`, { scroll: false });
-                }}
-                className="bg-transparent text-xs font-bold text-gray-900 focus:outline-none cursor-pointer"
+            
+            {/* SELECTOR / FILTRO DE PLANTILLAS ORGANIZADO */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
+                className="flex items-center gap-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-2 h-10 transition cursor-pointer text-xs font-bold text-gray-900 shadow-xs"
               >
-                {TEMPLATES_LIST.map((tpl) => (
-                  <option key={tpl.id} value={tpl.id}>
-                    {tpl.name} ({tpl.category === 'master' ? '$10' : tpl.category === 'premium' ? '$5' : '$3'})
-                  </option>
-                ))}
-              </select>
+                <LayoutTemplate className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="truncate max-w-55">
+                  {currentSelectedTemplateObj ? currentSelectedTemplateObj.name : 'Seleccionar Plantilla'} 
+                  <span className="text-gray-500 font-medium ml-1">
+                    ({currentSelectedTemplateObj?.category === 'master' ? '$10' : currentSelectedTemplateObj?.category === 'premium' ? '$5' : '$3'})
+                  </span>
+                </span>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isTemplateDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                  
+                  {/* Encabezado y Filtros por Categoría / Modo */}
+                  <div className="p-3 bg-gray-50 border-b border-gray-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black uppercase text-gray-700 tracking-wider">Elegir Plantilla</span>
+                      <span className="text-[10px] text-gray-500 font-semibold">{TEMPLATES_LIST.length} disponibles</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-1 bg-gray-200/80 p-1 rounded-xl">
+                      {[
+                        { id: 'all', label: 'Todas' },
+                        { id: 'basico', label: 'Básico ($3)' },
+                        { id: 'premium', label: 'Premium ($5)' },
+                        { id: 'master', label: 'Master ($10)' },
+                      ].map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setTemplateFilterCategory(cat.id)}
+                          className={`py-1.5 text-[10px] font-bold rounded-lg transition cursor-pointer text-center truncate px-1 ${
+                            templateFilterCategory === cat.id
+                              ? 'bg-gray-900 text-white shadow-sm'
+                              : 'text-gray-700 hover:bg-white/60'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Lista con scroll de plantillas filtradas */}
+                  <div className="max-h-72 overflow-y-auto p-2 space-y-1 scrollbar-thin">
+                    {filteredTemplates.length > 0 ? (
+                      filteredTemplates.map((tpl) => {
+                        const isSelected = selectedTemplateKey === tpl.id;
+                        const priceTag = tpl.category === 'master' ? '$10' : tpl.category === 'premium' ? '$5' : '$3';
+                        const badgeColor = tpl.category === 'master' ? 'bg-purple-100 text-purple-800' : tpl.category === 'premium' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+
+                        return (
+                          <button
+                            key={tpl.id}
+                            onClick={() => {
+                              router.replace(`/builder?template=${tpl.id}`, { scroll: false });
+                              setIsTemplateDropdownOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-amber-500/10 border border-amber-500/40 text-gray-900 font-bold'
+                                : 'hover:bg-gray-50 text-gray-800 font-medium border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 truncate">
+                              <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded shrink-0 ${badgeColor}`}>
+                                {tpl.category}
+                              </span>
+                              <span className="text-xs truncate">{tpl.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-xs font-black text-gray-900">{priceTag}</span>
+                              {isSelected && <Check className="w-4 h-4 text-amber-600" />}
+                            </div>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-6 text-xs text-gray-400 font-medium">
+                        No hay plantillas en esta categoría.
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              )}
             </div>
 
             {/* BOTÓN DE DESCARGA */}
@@ -316,7 +427,7 @@ function BuilderContent() {
       {/* CONTENEDOR PRINCIPAL: EDITOR (IZQ) Y VISTA PREVIA (DER) */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 sm:p-6 max-w-[1700px] mx-auto w-full print:p-0 print:block">
         
-        {/* COLUMNA IZQUIERDA: FORMULARIOS (Oculta en móvil si está activa la vista previa) */}
+        {/* COLUMNA IZQUIERDA: FORMULARIOS */}
         <div className={`lg:col-span-5 bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-6 flex flex-col lg:h-[calc(100vh-180px)] overflow-y-auto print:hidden ${mobileViewMode === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           
           {activeTab === 1 && (
@@ -865,7 +976,6 @@ function BuilderContent() {
         {/* COLUMNA DERECHA: VISTA PREVIA DEL LIENZO */}
         <div className={`lg:col-span-7 items-center justify-center bg-gray-200/70 rounded-2xl border border-gray-300 p-6 overflow-auto print:p-0 print:m-0 print:block print:bg-white ${mobileViewMode === 'preview' ? 'flex fixed inset-0 z-40 bg-gray-900/90 rounded-none p-4' : 'hidden lg:flex'}`}>
           
-          {/* Botón flotante para cerrar vista previa en móvil */}
           {mobileViewMode === 'preview' && (
             <button
               onClick={() => setMobileViewMode('editor')}
@@ -891,7 +1001,7 @@ function BuilderContent() {
 
       </div>
 
-      {/* BARRA FLOTANTE INFERIOR EXCLUSIVA PARA MÓVILES (Para alternar entre Editor y Vista Previa) */}
+      {/* BARRA FLOTANTE INFERIOR EXCLUSIVA PARA MÓVILES */}
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl flex items-center justify-around z-40 print:hidden">
         <button
           onClick={() => setMobileViewMode('editor')}

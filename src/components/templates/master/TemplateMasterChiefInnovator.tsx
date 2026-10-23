@@ -38,7 +38,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
       >
         <div className="flex flex-col space-y-5">
           
-          {/* REGLAS DE ORO 3 & 5: FOTO DE 160px x 160px CON ANILLO DE ACENTO */}
+          {/* FOTO DE 160px x 160px CON ANILLO DE ACENTO */}
           {personal?.showPhoto && (
             <div className="flex justify-center pt-2 pb-1">
               <div 
@@ -57,7 +57,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
                       className="w-full h-full object-cover" 
                     />
                   ) : (
-                    <span className="text-[10px] text-gray-300 font-bold tracking-widest">FOTO</span>
+                    <span className="text-[12px] text-gray-300 font-bold tracking-widest">FOTO</span>
                   )}
                 </div>
               </div>
@@ -70,26 +70,26 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
               className="py-1 px-3 rounded-full text-center shadow-sm"
               style={{ backgroundColor: accentColor }}
             >
-              <h3 className="font-bold text-[11px] uppercase tracking-wider text-[#1c1b36]">
+              <h3 className="font-bold text-[13px] uppercase tracking-wider text-[#1c1b36]">
                 Contacto
               </h3>
             </div>
-            <div className="space-y-2.5 text-[9.5px] pl-1 text-gray-200">
+            <div className="space-y-2.5 text-[12px] pl-1 text-gray-200">
               {personal?.location && (
                 <div className="space-y-0.5">
-                  <p className="font-bold text-white uppercase text-[9px]">Ubicación</p>
+                  <p className="font-bold text-white uppercase text-[11px]">Ubicación</p>
                   <p className="wrap-break-word leading-tight font-light text-gray-300">{personal.location}</p>
                 </div>
               )}
               {personal?.phone && (
                 <div className="space-y-0.5">
-                  <p className="font-bold text-white uppercase text-[9px]">Teléfono</p>
+                  <p className="font-bold text-white uppercase text-[11px]">Teléfono</p>
                   <p className="font-light text-gray-300">{personal.phone}</p>
                 </div>
               )}
               {personal?.email && (
                 <div className="space-y-0.5">
-                  <p className="font-bold text-white uppercase text-[9px]">Correo Electrónico</p>
+                  <p className="font-bold text-white uppercase text-[11px]">Correo Electrónico</p>
                   <p className="break-all font-light text-gray-300">{personal.email}</p>
                 </div>
               )}
@@ -103,17 +103,17 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
                 className="py-1 px-3 rounded-full text-center shadow-sm"
                 style={{ backgroundColor: accentColor }}
               >
-                <h3 className="font-bold text-[11px] uppercase tracking-wider text-[#1c1b36]">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-[#1c1b36]">
                   Habilidades
                 </h3>
               </div>
-              <div className="space-y-2 text-[9.5px] pl-1">
+              <div className="space-y-2 text-[12px] pl-1">
                 {skills.map((skill) => (
                   <div key={skill.id} className="space-y-1">
                     <div className="flex justify-between items-center pr-1">
-                      <span className="font-semibold text-white tracking-wide uppercase text-[9px]">{skill.name}</span>
+                      <span className="font-semibold text-white tracking-wide uppercase text-[12px]">{skill.name}</span>
                     </div>
-                    {/* Barra de progreso de dos tonos */}
+                    {/* Barra de progreso */}
                     <div className="w-full bg-gray-600 h-1.5 rounded-full overflow-hidden flex">
                       <div 
                         className="h-full rounded-full" 
@@ -133,16 +133,16 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
                 className="py-1 px-3 rounded-full text-center shadow-sm"
                 style={{ backgroundColor: accentColor }}
               >
-                <h3 className="font-bold text-[11px] uppercase tracking-wider text-[#1c1b36]">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-[#1c1b36]">
                   Idiomas
                 </h3>
               </div>
-              <div className="space-y-2 text-[9.5px] pl-1">
+              <div className="space-y-2 text-[12px] pl-1">
                 {languages.map((lang) => (
                   <div key={lang.id} className="space-y-1">
                     <div className="flex justify-between items-center pr-1">
-                      <span className="font-semibold text-white uppercase text-[9px]">{lang.name}</span>
-                      <span className="text-[8.5px] text-gray-300">{lang.level || 'Avanzado'}</span>
+                      <span className="font-semibold text-white uppercase text-[12px]">{lang.name}</span>
+                      <span className="text-[11.5px] text-gray-300">{lang.level || 'Avanzado'}</span>
                     </div>
                     <div className="w-full bg-gray-600 h-1.5 rounded-full overflow-hidden flex">
                       <div 
@@ -159,7 +159,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
         </div>
 
         {/* PIE DE PÁGINA COLUMNA IZQUIERDA */}
-        <div className="text-[9px] text-gray-400 text-center border-t border-gray-700/60 pt-2 tracking-widest uppercase">
+        <div className="text-[11px] text-gray-400 text-center border-t border-gray-700/60 pt-2 tracking-widest uppercase">
           CVRD.DO — Premium
         </div>
       </div>
@@ -171,29 +171,29 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
         
         <div className="flex flex-col space-y-5">
           
-          {/* ENCABEZADO PRINCIPAL (REGLA DE ORO 1: NOMBRE A 53px) */}
+          {/* ENCABEZADO PRINCIPAL (NOMBRE A 53px) */}
           <div className="border-b border-gray-200 pb-3">
             <h1 className="tracking-tight leading-none flex flex-wrap gap-x-3 items-baseline" style={{ fontSize: '53px' }}>
               <span className="font-black text-gray-900">{firstName}</span>
               <span className="font-light text-gray-600">{lastName}</span>
             </h1>
-            <p className="text-[12px] font-bold uppercase tracking-[0.2em] mt-2 text-gray-700">
+            <p className="text-[13px] font-bold uppercase tracking-[0.2em] mt-2 text-gray-700">
               {personal?.title || 'Jefe de Innovación / Diseñador'}
             </p>
           </div>
 
-          {/* SECCIÓN: PERFIL PROFESIONAL (REGLA DE ORO 6: JUSTIFICADO) */}
+          {/* SECCIÓN: PERFIL PROFESIONAL */}
           {profile && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 border-b border-gray-200 pb-1">
                 <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
                   <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
                 </span>
-                <h3 className="font-bold text-[12px] uppercase tracking-wider text-gray-800">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-gray-800">
                   Perfil Profesional
                 </h3>
               </div>
-              <p className="text-gray-700 leading-relaxed text-[10.5px] text-justify font-normal">
+              <p className="text-gray-700 leading-relaxed text-[12px] text-justify font-normal">
                 {profile}
               </p>
             </div>
@@ -206,7 +206,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
                 <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
                   <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
                 </span>
-                <h3 className="font-bold text-[12px] uppercase tracking-wider text-gray-800">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-gray-800">
                   Experiencia Laboral
                 </h3>
               </div>
@@ -214,15 +214,15 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
               <div className="space-y-3.5">
                 {experience.map((exp) => (
                   <div key={exp.id} className="grid grid-cols-12 gap-3 items-start">
-                    <div className="col-span-4 text-[9.5px] font-semibold text-gray-500 space-y-0.5">
+                    <div className="col-span-4 text-[12px] font-semibold text-gray-500 space-y-0.5">
                       <p className="text-gray-900 font-bold">{exp.startDate} – {exp.endDate}</p>
                       <p className="text-gray-600 font-medium">{exp.company}</p>
                     </div>
                     <div className="col-span-8 space-y-1">
-                      <h4 className="font-bold text-gray-900 text-[11px] uppercase tracking-wide">
+                      <h4 className="font-bold text-gray-900 text-[12px] uppercase tracking-wide">
                         {exp.role}
                       </h4>
-                      <p className="text-gray-700 leading-relaxed text-[10px] text-justify whitespace-pre-line font-light">
+                      <p className="text-gray-700 leading-relaxed text-[12px] text-justify whitespace-pre-line font-light">
                         {exp.description}
                       </p>
                     </div>
@@ -239,7 +239,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
                 <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
                   <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
                 </span>
-                <h3 className="font-bold text-[12px] uppercase tracking-wider text-gray-800">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-gray-800">
                   Educación
                 </h3>
               </div>
@@ -247,12 +247,12 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
               <div className="space-y-3">
                 {education.map((edu) => (
                   <div key={edu.id} className="grid grid-cols-12 gap-3 items-start">
-                    <div className="col-span-4 text-[9.5px] font-semibold text-gray-500 space-y-0.5">
+                    <div className="col-span-4 text-[12px] font-semibold text-gray-500 space-y-0.5">
                       <p className="text-gray-900 font-bold">{edu.startDate} – {edu.endDate}</p>
                       <p className="text-gray-600 font-medium">{edu.institution}</p>
                     </div>
                     <div className="col-span-8">
-                      <h4 className="font-bold text-gray-900 text-[10.5px]">
+                      <h4 className="font-bold text-gray-900 text-[12px]">
                         {edu.degree}
                       </h4>
                     </div>
@@ -269,7 +269,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
                 <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
                   <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
                 </span>
-                <h3 className="font-bold text-[12px] uppercase tracking-wider text-gray-800">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-gray-800">
                   Referencias
                 </h3>
               </div>
@@ -277,9 +277,9 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 {references.map((ref) => (
                   <div key={ref.id} className="space-y-0.5 border-l-2 border-gray-200" style={{ paddingLeft: '10px' }}>
-                    <p className="font-bold text-gray-900 text-[10.5px]">{ref.name}</p>
-                    <p className="text-gray-600 text-[10px]">{ref.position} {ref.company ? `- ${ref.company}` : ''}</p>
-                    {ref.phone && <p className="text-gray-500 text-[9.5px]">Tel: {ref.phone}</p>}
+                    <p className="font-bold text-gray-900 text-[12px]">{ref.name}</p>
+                    <p className="text-gray-600 text-[12px]">{ref.position} {ref.company ? `- ${ref.company}` : ''}</p>
+                    {ref.phone && <p className="text-gray-500 text-[12px]">Tel: {ref.phone}</p>}
                   </div>
                 ))}
               </div>
@@ -289,7 +289,7 @@ export default function TemplateMasterChiefInnovator({ data }: Props) {
         </div>
 
         {/* PIE DE PÁGINA COLUMNA DERECHA */}
-        <div className="text-right text-[9.5px] text-gray-400 pt-2 border-t border-gray-200 tracking-widest uppercase">
+        <div className="text-right text-[11px] text-gray-400 pt-2 border-t border-gray-200 tracking-widest uppercase">
           Template Master Chief Innovator — CVRD.DO
         </div>
 

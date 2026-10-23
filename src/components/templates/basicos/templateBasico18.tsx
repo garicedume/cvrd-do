@@ -19,15 +19,6 @@ export default function TemplateAtsMinimal({ data }: Props) {
 
   const accentColor = styles?.accentColor || '#262626';
 
-  const fs = {
-    base: '12px',
-    small: '11px',
-    tiny: '10px',
-    h3: '11px',
-    sidebarH3: '12px',
-    name: '32px',
-  };
-
   return (
     <div 
       className="relative bg-white shadow-2xl overflow-hidden box-border text-gray-950 flex justify-between"
@@ -37,8 +28,9 @@ export default function TemplateAtsMinimal({ data }: Props) {
         fontFamily: styles?.fontFamily || 'Poppins, sans-serif'
       }}
     >
+      {/* Barra lateral izquierda */}
       <div 
-        className="w-[288px] h-full flex flex-col justify-between p-6 text-white shrink-0 box-border shadow-md"
+        className="w-72 h-full flex flex-col justify-between p-6 text-white shrink-0 box-border shadow-md"
         style={{ backgroundColor: accentColor }}
       >
         <div className="space-y-6">
@@ -52,24 +44,24 @@ export default function TemplateAtsMinimal({ data }: Props) {
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={personal.photoUrl} alt="Perfil" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-gray-300 font-bold" style={{ fontSize: fs.tiny }}>FOTO</span>
+                  <span className="text-gray-300 font-bold text-[12px]">FOTO</span>
                 )}
               </div>
             </div>
           )}
 
           <div className="text-center space-y-1">
-            <h1 className="tracking-tight leading-none font-black uppercase text-white" style={{ fontSize: fs.name }}>
+            <h1 className="tracking-tight leading-none font-black uppercase text-white" style={{ fontSize: '32px' }}>
               <span className="block font-light text-gray-300">{firstName}</span>
               <span className="block font-black text-white">{lastName}</span>
             </h1>
-            <p className="font-bold uppercase tracking-wider text-amber-400 pt-1" style={{ fontSize: fs.tiny }}>
-              {personal?.title}
+            <p className="font-bold uppercase tracking-wider text-amber-400 pt-1 text-[12px]">
+              {personal?.title || 'DISEÑADOR GRÁFICO'}
             </p>
           </div>
 
-          <div className="space-y-2 border-t border-white/15 pt-4" style={{ fontSize: fs.small }}>
-            <h3 className="font-bold uppercase tracking-wider text-gray-300 pb-1" style={{ fontSize: fs.sidebarH3 }}>
+          <div className="space-y-2 border-t border-white/15 pt-4 text-[12px]">
+            <h3 className="font-bold uppercase tracking-wider text-gray-300 pb-1 text-[12px]">
               Contacto
             </h3>
             {personal?.phone && <p className="text-gray-200 break-all">📞 {personal.phone}</p>}
@@ -82,16 +74,16 @@ export default function TemplateAtsMinimal({ data }: Props) {
           </div>
 
           {education && education.length > 0 && (
-            <div className="space-y-2 border-t border-white/15 pt-4">
-              <h3 className="font-bold uppercase tracking-wider text-gray-300 pb-1" style={{ fontSize: fs.sidebarH3 }}>
+            <div className="space-y-2 border-t border-white/15 pt-4 text-[12px]">
+              <h3 className="font-bold uppercase tracking-wider text-gray-300 pb-1 text-[12px]">
                 Educación
               </h3>
               <div className="space-y-3">
                 {education.map((edu) => (
                   <div key={edu.id} className="space-y-0.5">
-                    <span className="text-gray-400 font-semibold block" style={{ fontSize: fs.tiny }}>{edu.startDate} - {edu.endDate}</span>
-                    <p className="font-bold text-white" style={{ fontSize: fs.small }}>{edu.degree}</p>
-                    <p className="text-gray-300" style={{ fontSize: fs.tiny }}>{edu.institution}</p>
+                    <span className="text-gray-400 font-semibold block text-[12px]">{edu.startDate} - {edu.endDate}</span>
+                    <p className="font-bold text-white text-[12px]">{edu.degree}</p>
+                    <p className="text-gray-300 text-[12px]">{edu.institution}</p>
                   </div>
                 ))}
               </div>
@@ -99,13 +91,13 @@ export default function TemplateAtsMinimal({ data }: Props) {
           )}
 
           {skills && skills.length > 0 && (
-            <div className="space-y-2 border-t border-white/15 pt-4">
-              <h3 className="font-bold uppercase tracking-wider text-gray-300 pb-1" style={{ fontSize: fs.sidebarH3 }}>
+            <div className="space-y-2 border-t border-white/15 pt-4 text-[12px]">
+              <h3 className="font-bold uppercase tracking-wider text-gray-300 pb-1 text-[12px]">
                 Habilidades
               </h3>
               <ul className="space-y-1">
                 {skills.map((skill) => (
-                  <li key={skill.id} className="text-gray-200 font-medium" style={{ fontSize: fs.small }}>
+                  <li key={skill.id} className="text-gray-200 font-medium text-[12px]">
                     • {skill.name} {skill.level && <span className="text-gray-400">({skill.level})</span>}
                   </li>
                 ))}
@@ -114,51 +106,53 @@ export default function TemplateAtsMinimal({ data }: Props) {
           )}
         </div>
 
-        <div className="text-gray-400 text-center pb-2" style={{ fontSize: fs.tiny }}>
+        <div className="text-gray-400 text-center pb-2 text-[12px]">
           CVRD.DO
         </div>
       </div>
 
+      {/* Columna derecha principal */}
       <div className="flex-1 h-full flex flex-col justify-between p-8 overflow-hidden bg-white">
         <div className="space-y-5">
           {profile && (
-            <div className="space-y-1.5 border-b border-gray-200 pb-4">
-              <h3 className="font-black uppercase tracking-wider text-gray-950 flex items-center gap-2" style={{ fontSize: fs.h3 }}>
-                <span>👤</span> About Me
+            <div className="space-y-1.5 border-b border-gray-200 pb-4 text-[12px]">
+              <h3 className="font-black uppercase tracking-wider text-gray-950 flex items-center gap-2 text-[12px]">
+                <span>👤</span> Perfil Profesional
               </h3>
-              <p className="text-gray-700 leading-relaxed font-normal" style={{ fontSize: fs.small }}>{profile}</p>
+              <p className="text-gray-700 leading-relaxed font-normal text-[12px]">{profile}</p>
             </div>
           )}
 
           {experience && experience.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="font-black uppercase tracking-wider text-gray-950 flex items-center gap-2 border-b border-gray-200 pb-1" style={{ fontSize: fs.h3 }}>
+            <div className="space-y-3 text-[12px]">
+              <h3 className="font-black uppercase tracking-wider text-gray-950 flex items-center gap-2 border-b border-gray-200 pb-1 text-[12px]">
                 <span>💼</span> Experiencia Profesional
               </h3>
               <div className="space-y-4">
                 {experience.map((exp) => (
                   <div key={exp.id} className="space-y-1">
                     <div className="flex justify-between items-baseline">
-                      <h4 className="font-bold text-gray-900" style={{ fontSize: fs.base }}>{exp.role}</h4>
-                      <span className="text-gray-500 font-semibold" style={{ fontSize: fs.tiny }}>{exp.startDate} - {exp.endDate}</span>
+                      <h4 className="font-bold text-gray-900 text-[12px]">{exp.role}</h4>
+                      <span className="text-gray-500 font-semibold text-[12px]">{exp.startDate} - {exp.endDate}</span>
                     </div>
-                    <p className="font-bold text-gray-700" style={{ fontSize: fs.small }}>{exp.company}</p>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line" style={{ fontSize: fs.small }}>{exp.description}</p>
+                    <p className="font-bold text-gray-700 text-[12px]">{exp.company}</p>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line text-[12px]">{exp.description}</p>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+          {/* Idiomas y Referencias ordenados uno debajo del otro */}
+          <div className="space-y-4 border-t border-gray-200 pt-4 text-[12px]">
             {languages && languages.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-black uppercase tracking-wider text-gray-950" style={{ fontSize: fs.h3 }}>
+                <h3 className="font-black uppercase tracking-wider text-gray-950 text-[12px]">
                   Idiomas
                 </h3>
                 <div className="space-y-1">
                   {languages.map((lang) => (
-                    <div key={lang.id} className="flex justify-between text-gray-800" style={{ fontSize: fs.small }}>
+                    <div key={lang.id} className="flex justify-between text-gray-800 text-[12px]">
                       <span className="font-medium">{lang.name}</span>
                       <span className="text-gray-500">{lang.level}</span>
                     </div>
@@ -168,14 +162,17 @@ export default function TemplateAtsMinimal({ data }: Props) {
             )}
 
             {references && references.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-black uppercase tracking-wider text-gray-950" style={{ fontSize: fs.h3 }}>
+              <div className="space-y-2 pt-2">
+                <h3 className="font-black uppercase tracking-wider text-gray-950 text-[12px]">
                   Referencias
                 </h3>
-                <div className="space-y-1">
+                <div className="grid grid-cols-2 gap-3">
                   {references.map((ref) => (
-                    <div key={ref.id} className="text-gray-800" style={{ fontSize: fs.small }}>
-                      <span className="font-bold">{ref.name}</span> <span className="text-gray-600">({ref.company})</span>
+                    <div key={ref.id} className="space-y-0.5 border-l-2 border-gray-300 pl-2 text-[12px]">
+                      <p className="font-bold text-gray-950">{ref.name}</p>
+                      <p className="text-gray-600">{ref.position} - {ref.company}</p>
+                      <p className="text-gray-500">Tel: {ref.phone}</p>
+                      {ref.email && <p className="text-gray-500">Correo: {ref.email}</p>}
                     </div>
                   ))}
                 </div>
@@ -184,7 +181,7 @@ export default function TemplateAtsMinimal({ data }: Props) {
           </div>
         </div>
 
-        <div className="text-right text-gray-400 pt-3 border-t border-gray-200" style={{ fontSize: fs.tiny }}>
+        <div className="text-right text-gray-400 pt-3 border-t border-gray-200 text-[12px]">
           CVRD.DO — ATS Minimal Layout
         </div>
       </div>

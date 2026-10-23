@@ -7,8 +7,14 @@ interface Props {
   data: CVData;
 }
 
+interface CustomLink {
+  label?: string;
+  url?: string;
+  urlLine2?: string;
+}
+
 export default function CustomerCareTemplate({ data }: Props) {
-  const { personal, profile, experience, education, skills, languages, references, extras } = data;
+  const { personal, profile, experience, education, languages, references, extras, styles } = data;
 
   const photoShapeClass = 
     personal?.photoShape === 'circle' ? 'rounded-full' :
@@ -19,13 +25,7 @@ export default function CustomerCareTemplate({ data }: Props) {
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
 
-  const fs = {
-    base: '11px',
-    small: '10px',
-    tiny: '9px',
-    h3: '11px',
-    name: '32px',
-  };
+  const accentColor = styles?.accentColor || '#1f2937';
 
   return (
     <div 
@@ -33,88 +33,131 @@ export default function CustomerCareTemplate({ data }: Props) {
       style={{
         width: '816px',
         height: '1056px',
-        fontFamily: data.styles?.fontFamily || 'Poppins, sans-serif'
+        fontFamily: styles?.fontFamily || 'Poppins, sans-serif'
       }}
     >
+      {/* ================= ENCABEZADO SUPERIOR ================= */}
       <div className="flex justify-between items-start border-b border-gray-300 pb-5 shrink-0">
+        {/* Nombre imponente horizontal (10% más grande, Bold + Regular) y Título */}
         <div className="space-y-1">
-          <h1 className="tracking-tight leading-none font-serif font-black uppercase text-gray-900" style={{ fontSize: fs.name }}>
-            <span>{firstName}</span> <span className="font-light text-gray-700">{lastName}</span>
+          <h1 className="tracking-tight leading-none uppercase flex flex-wrap gap-x-3 items-baseline" style={{ fontSize: '38px' }}>
+            <span className="font-extrabold text-gray-900">{firstName}</span>
+            <span className="font-normal text-gray-600">{lastName}</span>
           </h1>
-          <p className="font-bold uppercase tracking-widest text-gray-500 pt-1" style={{ fontSize: fs.small }}>
-            {personal?.title}
+          <p className="font-bold uppercase tracking-widest text-gray-500 pt-1 text-[12px]">
+            {personal?.title || 'DISEÑADOR GRÁFICO'}
           </p>
         </div>
 
-        <div className="space-y-1 text-right text-gray-600 border-l border-gray-300 pl-4" style={{ fontSize: fs.small }}>
-          {personal?.phone && <p>📞 {personal.phone}</p>}
-          {personal?.email && <p>✉️ {personal.email}</p>}
-          {personal?.location && <p>📍 {personal.location}</p>}
-          {extras?.linkedin && <p>🔗 {extras.linkedin}</p>}
+        {/* Contacto derecho en una sola línea con iconos planos */}
+        <div className="text-[12px] text-gray-700 space-y-1 text-right border-l border-gray-300 pl-4 whitespace-nowrap pt-0.5">
+          {personal?.phone && (
+            <p className="flex items-center justify-end gap-2">
+              <span>{personal.phone}</span>
+              <span className="shrink-0 text-gray-800">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              </span>
+            </p>
+          )}
+          {personal?.secondaryPhone && (
+            <p className="flex items-center justify-end gap-2 text-gray-500">
+              <span>{personal.secondaryPhone}</span>
+              <span className="shrink-0">📞</span>
+            </p>
+          )}
+          {personal?.email && (
+            <p className="flex items-center justify-end gap-2">
+              <span>{personal.email}</span>
+              <span className="shrink-0 text-gray-800">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </span>
+            </p>
+          )}
+          {personal?.secondaryEmail && (
+            <p className="flex items-center justify-end gap-2 text-gray-500">
+              <span>{personal.secondaryEmail}</span>
+              <span className="shrink-0">✉️</span>
+            </p>
+          )}
+          {personal?.location && (
+            <p className="flex items-center justify-end gap-2">
+              <span>{personal.location}</span>
+              <span className="shrink-0 text-gray-800">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </span>
+            </p>
+          )}
+          {extras?.customLinks && Array.isArray(extras.customLinks) && extras.customLinks.length > 0 ? (
+            (extras.customLinks as CustomLink[]).map((link, idx) => (
+              <p key={idx} className="flex items-center justify-end gap-2">
+                <span>{link?.label || 'Enlace'}: {link?.url}</span>
+                <span className="shrink-0">🔗</span>
+              </p>
+            ))
+          ) : (
+            extras?.linkedin && (
+              <p className="flex items-center justify-end gap-2">
+                <span>{extras.linkedin}</span>
+                <span className="shrink-0">🔗</span>
+              </p>
+            )
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 my-4 flex-1 overflow-hidden">
+      {/* ================= CUERPO CENTRAL (2 Columnas a 12px) ================= */}
+      <div className="grid grid-cols-12 gap-6 my-4 flex-1 overflow-hidden text-[12px]">
+        
+        {/* Columna Izquierda (Foto 160x160px, Idiomas con respiro y Referencias completas) */}
         <div className="col-span-4 bg-gray-100/80 p-4 rounded-xl flex flex-col space-y-4 shadow-xs">
+          
+          {/* Foto de perfil tamaño exacto 160x160px */}
           {personal?.showPhoto && (
             <div className="flex justify-center pt-1">
               <div 
                 className={`bg-gray-300 overflow-hidden border border-gray-300 flex items-center justify-center shadow-md ${photoShapeClass}`}
-                style={{ width: '130px', height: '160px' }}
+                style={{ width: '160px', height: '160px' }}
               >
                 {personal?.photoUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={personal.photoUrl} alt="Perfil" className="w-full h-full object-cover" />
+                  <img src={personal.photoUrl} alt="Perfil" className="w-full h-full object-cover object-center" />
                 ) : (
-                  <span className="text-gray-500 font-bold" style={{ fontSize: fs.tiny }}>FOTO</span>
+                  <span className="text-gray-500 font-bold text-[12px]">FOTO 160x160</span>
                 )}
               </div>
             </div>
           )}
 
-          {education && education.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-black uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5" style={{ fontSize: fs.h3 }}>
-                Education
+          {/* Idiomas con respiro adicional respecto a la foto */}
+          {languages && languages.length > 0 && (
+            <div className="space-y-2 pt-2">
+              <h3 className="font-black uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 text-[12px]">
+                Idiomas
               </h3>
-              <div className="space-y-2">
-                {education.map((edu) => (
-                  <div key={edu.id} className="space-y-0.5">
-                    <span className="text-gray-500 font-semibold block" style={{ fontSize: fs.tiny }}>{edu.startDate} - {edu.endDate}</span>
-                    <p className="font-bold text-gray-900" style={{ fontSize: fs.small }}>{edu.degree}</p>
-                    <p className="text-gray-600" style={{ fontSize: fs.tiny }}>{edu.institution}</p>
+              <div className="space-y-1.5">
+                {languages.map((lang) => (
+                  <div key={lang.id} className="flex justify-between text-gray-800 text-[12px]">
+                    <span className="font-medium">{lang.name}</span>
+                    <span className="text-gray-500 font-bold">{lang.level}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {skills && skills.length > 0 && (
-            <div className="space-y-1.5">
-              <h3 className="font-black uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5" style={{ fontSize: fs.h3 }}>
-                Hobbies
-              </h3>
-              <ul className="space-y-1">
-                {skills.map((skill) => (
-                  <li key={skill.id} className="text-gray-800 font-medium" style={{ fontSize: fs.small }}>
-                    • {skill.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
+          {/* Referencias Personales (Visibles y completas) */}
           {references && references.length > 0 && (
-            <div className="space-y-1.5">
-              <h3 className="font-black uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5" style={{ fontSize: fs.h3 }}>
-                Reference
+            <div className="space-y-2">
+              <h3 className="font-black uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 text-[12px]">
+                Referencias
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {references.map((ref) => (
-                  <div key={ref.id} className="space-y-0.5" style={{ fontSize: fs.small }}>
+                  <div key={ref.id} className="space-y-0.5 text-[12px]">
                     <p className="font-bold text-gray-900">{ref.name}</p>
-                    <p className="text-gray-600">{ref.company}</p>
-                    {ref.phone && <p className="text-gray-500">{ref.phone}</p>}
+                    <p className="text-gray-600">{ref.position} - {ref.company}</p>
+                    <p className="text-gray-500">Tel: {ref.phone}</p>
+                    {ref.email && <p className="text-gray-500">Correo: {ref.email}</p>}
                   </div>
                 ))}
               </div>
@@ -122,30 +165,54 @@ export default function CustomerCareTemplate({ data }: Props) {
           )}
         </div>
 
+        {/* Columna Derecha (Perfil Profesional, Educación horizontal y Experiencia) */}
         <div className="col-span-8 flex flex-col space-y-4 pl-2">
+          
+          {/* Perfil Profesional */}
           {profile && (
             <div className="space-y-1">
-              <h3 className="font-black uppercase tracking-wider text-gray-950 border-b border-gray-300 pb-1" style={{ fontSize: fs.h3 }}>
-                About Me
+              <h3 className="font-black uppercase tracking-wider text-gray-950 border-b border-gray-300 pb-1 text-[12px]">
+                Perfil Profesional
               </h3>
-              <p className="text-gray-700 leading-relaxed font-normal" style={{ fontSize: fs.small }}>{profile}</p>
+              <p className="text-gray-700 leading-relaxed font-normal text-[12px] text-justify">{profile}</p>
             </div>
           )}
 
+          {/* Educación (Movida antes de experiencia, con estilo horizontal) */}
+          {education && education.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="font-black uppercase tracking-wider text-gray-950 border-b border-gray-300 pb-1 text-[12px]">
+                Educación
+              </h3>
+              <div className="space-y-3">
+                {education.map((edu) => (
+                  <div key={edu.id} className="space-y-0.5">
+                    <div className="flex justify-between items-baseline">
+                      <h4 className="font-bold text-gray-900 text-[12px]">{edu.degree}</h4>
+                      <span className="text-gray-500 font-semibold text-[12px]">{edu.startDate} - {edu.endDate}</span>
+                    </div>
+                    <p className="text-gray-700 text-[12px]">{edu.institution}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Experiencia Profesional */}
           {experience && experience.length > 0 && (
             <div className="space-y-2">
-              <h3 className="font-black uppercase tracking-wider text-gray-950 border-b border-gray-300 pb-1" style={{ fontSize: fs.h3 }}>
-                Experience
+              <h3 className="font-black uppercase tracking-wider text-gray-950 border-b border-gray-300 pb-1 text-[12px]">
+                Experiencia Profesional
               </h3>
               <div className="space-y-3">
                 {experience.map((exp) => (
                   <div key={exp.id} className="space-y-1">
                     <div className="flex justify-between items-baseline">
-                      <h4 className="font-bold text-gray-900" style={{ fontSize: fs.base }}>{exp.role}</h4>
-                      <span className="text-gray-500 font-semibold" style={{ fontSize: fs.tiny }}>{exp.startDate} - {exp.endDate}</span>
+                      <h4 className="font-bold text-gray-900 text-[12px]">{exp.role}</h4>
+                      <span className="text-gray-500 font-semibold text-[12px]">{exp.startDate} - {exp.endDate}</span>
                     </div>
-                    <p className="font-bold text-gray-700" style={{ fontSize: fs.small }}>{exp.company}</p>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line" style={{ fontSize: fs.small }}>{exp.description}</p>
+                    <p className="font-bold text-gray-700 text-[12px]">{exp.company}</p>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line text-[12px] text-justify">{exp.description}</p>
                   </div>
                 ))}
               </div>
@@ -154,37 +221,14 @@ export default function CustomerCareTemplate({ data }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 pt-4 border-t border-gray-300 shrink-0">
-        <div className="space-y-1">
-          <h4 className="font-black uppercase tracking-wider text-gray-900" style={{ fontSize: fs.tiny }}>Language</h4>
-          {languages && languages.length > 0 ? (
-            languages.map((lang) => (
-              <div key={lang.id} className="flex justify-between text-gray-700" style={{ fontSize: fs.small }}>
-                <span>{lang.name}</span>
-                <span className="text-gray-500 font-semibold">{lang.level}</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400 italic" style={{ fontSize: fs.small }}>Español (Nativo)</p>
-          )}
+      {/* ================= PIE DE PÁGINA ================= */}
+      <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-300 shrink-0 text-[12px]">
+        <div>
+          <h4 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">CVRD.DO</h4>
+          <p className="text-gray-400 text-[12px]">Plantilla Atención al Cliente</p>
         </div>
-
-        <div className="space-y-1">
-          <h4 className="font-black uppercase tracking-wider text-gray-900" style={{ fontSize: fs.tiny }}>Skills</h4>
-          {skills && skills.length > 0 ? (
-            skills.slice(0, 3).map((s) => (
-              <div key={s.id} className="text-gray-700 truncate" style={{ fontSize: fs.small }}>
-                • {s.name}
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400 italic" style={{ fontSize: fs.small }}>Comunicación, Empatía</p>
-          )}
-        </div>
-
-        <div className="space-y-1 text-right">
-          <h4 className="font-black uppercase tracking-wider text-gray-900" style={{ fontSize: fs.tiny }}>CVRD.DO</h4>
-          <p className="text-gray-400" style={{ fontSize: fs.tiny }}>Customer Care Layout</p>
+        <div className="text-right text-gray-400">
+          <p className="text-[12px]">Página 1 de 1</p>
         </div>
       </div>
     </div>

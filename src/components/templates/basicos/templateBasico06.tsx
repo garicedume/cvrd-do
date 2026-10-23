@@ -92,7 +92,7 @@ export default function TemplateBasico06({ data }: Props) {
                   <span className="shrink-0 mt-0.5" style={{ color: accentColor }}>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                   </span>
-                  <span className="break-words">{locationsString}</span>
+                  <span className="wrap-break-word">{locationsString}</span>
                 </p>
               )}
               {extras?.customLinks && extras.customLinks.map((link, idx) => (
@@ -154,7 +154,7 @@ export default function TemplateBasico06({ data }: Props) {
           {/* Experiencia Laboral */}
           {experience && experience.length > 0 && (
             <div className="text-[12px] relative pl-5 border-l-2" style={{ borderColor: accentColor }}>
-              <div className="absolute -left-[7px] top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
+              <div className="absolute -left-1.75 top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
               <h3 className="font-bold uppercase tracking-wider mb-3 text-[12px]" style={{ color: accentColor }}>
                 Experiencia Laboral
               </h3>
@@ -174,7 +174,7 @@ export default function TemplateBasico06({ data }: Props) {
           {/* Idiomas */}
           {languages && languages.length > 0 && (
             <div className="text-[12px] relative pl-5 border-l-2" style={{ borderColor: accentColor }}>
-              <div className="absolute -left-[7px] top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
+              <div className="absolute -left-1.75 top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
               <h3 className="font-bold uppercase tracking-wider mb-3 text-[12px]" style={{ color: accentColor }}>
                 Idiomas
               </h3>
@@ -192,7 +192,7 @@ export default function TemplateBasico06({ data }: Props) {
           {/* Habilidades */}
           {skills && skills.length > 0 && (
             <div className="text-[12px] relative pl-5 border-l-2" style={{ borderColor: accentColor }}>
-              <div className="absolute -left-[7px] top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
+              <div className="absolute -left-1.75 top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
               <h3 className="font-bold uppercase tracking-wider mb-3 text-[12px]" style={{ color: accentColor }}>
                 Habilidades
               </h3>
@@ -210,7 +210,7 @@ export default function TemplateBasico06({ data }: Props) {
           {/* Referencias (Añadidas e integradas correctamente) */}
           {references && references.length > 0 && (
             <div className="text-[12px] relative pl-5 border-l-2" style={{ borderColor: accentColor }}>
-              <div className="absolute -left-[7px] top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
+              <div className="absolute -left-1.75 top-0 w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }}></div>
               <h3 className="font-bold uppercase tracking-wider mb-3 text-[12px]" style={{ color: accentColor }}>
                 Referencias
               </h3>

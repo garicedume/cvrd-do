@@ -1,217 +1,278 @@
 import React from 'react';
-import { CVData } from '../../../types/cv';
+import { CVData } from '@/types/cv';
 
-interface TemplateProps {
+interface Props {
   data: CVData;
 }
 
-export default function TemplateFinanceStrict({ data }: TemplateProps) {
-  const { personal, profile, experience, education, skills, styles } = data;
-  const accentColor = styles?.accentColor || '#EAB308'; // Color amarillo/dorado de la muestra por defecto
+interface CustomLink {
+  label?: string;
+  url?: string;
+  urlLine2?: string;
+}
+
+export default function TemplateExecutiveClean({ data }: Props) {
+  const { personal, profile, experience, education, skills, languages, references, extras, styles } = data;
+
+  const photoShapeClass = 
+    personal?.photoShape === 'circle' ? 'rounded-full' :
+    personal?.photoShape === 'rounded' ? 'rounded-2xl' : 'rounded-none';
+
+  const fullNameStr = personal?.fullName || '';
+  const nameParts = fullNameStr.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  const sidebarBg = '#f4f1ea'; // Tono beige/crema elegante de la referencia
+  const accentColor = styles?.accentColor || '#78614e'; // Tono marrón/taupe sutil para acentos
 
   return (
-    <div className="bg-white text-gray-900 w-full max-w-[210mm] min-h-[297mm] mx-auto p-8 sm:p-12 font-sans shadow-lg print:shadow-none select-none">
-      
-      {/* FRANJA SUPERIOR DECORATIVA */}
-      <div className="w-12 h-2 mb-6" style={{ backgroundColor: accentColor }} />
-
-      {/* CABECERA: FOTO + NOMBRE Y TÍTULO */}
-      <header className="grid grid-cols-12 gap-8 items-center pb-8 border-b border-gray-200">
-        {/* FOTO DE PERFIL */}
-        <div className="col-span-4 flex justify-center">
-          {personal?.showPhoto && personal?.photoUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img 
-              src={personal.photoUrl} 
-              alt={personal?.fullName || 'Foto de perfil'} 
-              className="w-32 h-32 object-cover rounded-full shadow-md border-2 border-gray-100"
-            />
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 font-bold text-xs">
-              Sin Foto
+    <div 
+      className="relative bg-white shadow-2xl overflow-hidden box-border text-gray-900 flex"
+      style={{
+        width: '816px',
+        height: '1056px',
+        fontFamily: styles?.fontFamily || 'Poppins, sans-serif'
+      }}
+    >
+      {/* ================= COLUMNA IZQUIERDA (Barra Lateral Crema) ================= */}
+      <div 
+        className="w-75 h-full flex flex-col justify-between p-6 shrink-0 relative border-r border-gray-200"
+        style={{ backgroundColor: sidebarBg }}
+      >
+        <div className="flex flex-col space-y-5 pt-2">
+          
+          {/* Foto de perfil tamaño exacto 160x160px con la forma correcta sin duplicados */}
+          {personal?.showPhoto && (
+            <div className="flex justify-center pt-2">
+              <div 
+                className={`overflow-hidden shadow-sm border border-[#d6cfc7] flex items-center justify-center shrink-0 ${photoShapeClass}`}
+                style={{ width: '160px', height: '160px' }}
+              >
+                {personal?.photoUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={personal.photoUrl} alt="Perfil" className="w-full h-full object-cover object-center" />
+                ) : (
+                  <span className="text-[12px] text-gray-400 font-bold">FOTO 160x160</span>
+                )}
+              </div>
             </div>
           )}
-        </div>
 
-        {/* NOMBRE Y PUESTO */}
-        <div className="col-span-8 space-y-2">
-          <h1 className="text-4xl font-black uppercase tracking-tight text-gray-900 leading-none">
-            {personal?.fullName?.split(' ')[0] || 'DAVID'}
-            <span className="block text-gray-700 mt-1">
-              {personal?.fullName?.split(' ').slice(1).join(' ') || 'ANDERSON'}
-            </span>
-          </h1>
-          <div className="inline-block px-4 py-1 text-xs font-black uppercase tracking-widest text-gray-950 shadow-xs" style={{ backgroundColor: accentColor }}>
-            {personal?.title || 'UX DESIGNER'}
-          </div>
-        </div>
-      </header>
-
-      {/* CUERPO PRINCIPAL EN DOS COLUMNAS */}
-      <div className="grid grid-cols-12 gap-8 pt-8">
-        
-        {/* COLUMNA IZQUIERDA (Education & Contact) */}
-        <div className="col-span-4 space-y-8 border-r border-gray-200 pr-6">
-          
-          {/* EDUCATION */}
-          <section className="space-y-4">
-            <h2 className="text-sm font-black tracking-widest uppercase text-gray-900">
-              Education
-            </h2>
-            <div className="w-8 h-0.5" style={{ backgroundColor: accentColor }} />
-            
-            <div className="space-y-4 text-xs">
-              {education && education.length > 0 ? (
-                education.map((edu) => (
-                  <div key={edu.id} className="space-y-0.5">
-                    <span className="text-gray-500 font-semibold">{edu.startDate} – {edu.endDate}</span>
-                    <h3 className="font-bold text-gray-900">{edu.degree}</h3>
-                    <p className="text-gray-600">{edu.institution}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="space-y-0.5">
-                  <span className="text-gray-500 font-semibold">2014 – 2018</span>
-                  <h3 className="font-bold text-gray-900">Degree Name</h3>
-                  <p className="text-gray-600">University name here</p>
-                </div>
-              )}
+          {/* Perfil Profesional / Sobre mí en barra lateral */}
+          {profile && (
+            <div className="text-[12px] space-y-1.5">
+              <div className="flex items-center gap-2 border-b border-[#d6cfc7] pb-1">
+                <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+                <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                  Sobre Mí
+                </h3>
+              </div>
+              <p className="text-gray-700 leading-relaxed text-[12px] text-justify">{profile}</p>
             </div>
-          </section>
+          )}
 
-          {/* CONTACT */}
-          <section className="space-y-4">
-            <h2 className="text-sm font-black tracking-widest uppercase text-gray-900">
-              Contact
-            </h2>
-            <div className="w-8 h-0.5" style={{ backgroundColor: accentColor }} />
-            
-            <div className="space-y-3 text-xs text-gray-700">
+          {/* Contacto en una sola línea con iconos planos */}
+          <div className="text-[12px] space-y-2">
+            <div className="flex items-center gap-2 border-b border-[#d6cfc7] pb-1">
+              <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+              <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                Contacto
+              </h3>
+            </div>
+            <div className="space-y-1.5 text-gray-700 text-[12px] whitespace-nowrap">
               {personal?.phone && (
-                <div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">Phone</p>
-                  <p className="font-medium">{personal.phone}</p>
-                </div>
+                <p className="flex items-center gap-2">
+                  <span className="shrink-0 text-gray-800">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  </span>
+                  <span>{personal.phone}</span>
+                </p>
+              )}
+              {personal?.secondaryPhone && (
+                <p className="flex items-center gap-2 text-gray-500">
+                  <span className="shrink-0">📞</span>
+                  <span>{personal.secondaryPhone}</span>
+                </p>
               )}
               {personal?.email && (
-                <div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">Email</p>
-                  <p className="font-medium break-all">{personal.email}</p>
-                </div>
+                <p className="flex items-center gap-2">
+                  <span className="shrink-0 text-gray-800">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                  </span>
+                  <span>{personal.email}</span>
+                </p>
+              )}
+              {personal?.secondaryEmail && (
+                <p className="flex items-center gap-2 text-gray-500">
+                  <span className="shrink-0">✉️</span>
+                  <span>{personal.secondaryEmail}</span>
+                </p>
               )}
               {personal?.location && (
-                <div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">Address</p>
-                  <p className="font-medium">{personal.location}</p>
-                </div>
+                <p className="flex items-center gap-2">
+                  <span className="shrink-0 text-gray-800">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  </span>
+                  <span>{personal.location}</span>
+                </p>
+              )}
+              {extras?.customLinks && Array.isArray(extras.customLinks) && extras.customLinks.length > 0 ? (
+                (extras.customLinks as CustomLink[]).map((link, idx) => (
+                  <p key={idx} className="flex items-center gap-2">
+                    <span className="shrink-0">🔗</span>
+                    <span>{link?.label || 'Enlace'}: {link?.url}</span>
+                  </p>
+                ))
+              ) : (
+                extras?.linkedin && (
+                  <p className="flex items-center gap-2">
+                    <span className="shrink-0">🔗</span>
+                    <span>{extras.linkedin}</span>
+                  </p>
+                )
               )}
             </div>
-          </section>
+          </div>
 
-        </div>
-
-        {/* COLUMNA DERECHA (Profile, Experience & Skills) */}
-        <div className="col-span-8 space-y-8 pl-2">
-          
-          {/* PROFILE */}
-          {profile && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-black tracking-widest uppercase text-gray-900">
-                Profile
-              </h2>
-              <div className="w-8 h-0.5" style={{ backgroundColor: accentColor }} />
-              <p className="text-xs text-gray-600 leading-relaxed text-justify">
-                {profile}
-              </p>
-            </section>
+          {/* Habilidades / Herramientas */}
+          {skills && skills.length > 0 && (
+            <div className="text-[12px] space-y-2">
+              <div className="flex items-center gap-2 border-b border-[#d6cfc7] pb-1">
+                <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+                <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                  Herramientas
+                </h3>
+              </div>
+              <ul className="space-y-1 text-gray-700 text-[12px]">
+                {skills.map((skill) => (
+                  <li key={skill.id} className="flex items-center gap-2">
+                    <span className="w-1 h-1 bg-gray-800 rounded-full"></span>
+                    <span>{skill.name} {skill.level && <span className="text-gray-500 font-normal">({skill.level})</span>}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
-          {/* EXPERIENCE */}
-          <section className="space-y-4">
-            <h2 className="text-sm font-black tracking-widest uppercase text-gray-900">
-              Experience
-            </h2>
-            <div className="w-8 h-0.5" style={{ backgroundColor: accentColor }} />
-            
-            <div className="space-y-5">
-              {experience && experience.length > 0 ? (
-                experience.map((exp) => (
-                  <div key={exp.id} className="space-y-1">
-                    <div className="text-[11px] font-bold text-gray-500">{exp.startDate} – {exp.endDate}</div>
-                    <h3 className="text-xs font-bold text-gray-900">{exp.role}</h3>
-                    <div className="text-[11px] font-semibold text-gray-700">{exp.company}</div>
-                    {exp.description && (
-                      <p className="text-[11px] text-gray-600 whitespace-pre-line leading-relaxed">
-                        {exp.description}
-                      </p>
-                    )}
+          {/* Idiomas */}
+          {languages && languages.length > 0 && (
+            <div className="text-[12px] space-y-2">
+              <div className="flex items-center gap-2 border-b border-[#d6cfc7] pb-1">
+                <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+                <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                  Idiomas
+                </h3>
+              </div>
+              <div className="space-y-1.5 text-gray-700 text-[12px]">
+                {languages.map((lang) => (
+                  <div key={lang.id} className="flex justify-between font-medium">
+                    <span>{lang.name}</span>
+                    <span className="text-gray-500 font-bold">{lang.level}</span>
                   </div>
-                ))
-              ) : (
-                <div className="space-y-1">
-                  <div className="text-[11px] font-bold text-gray-500">2020 – Present</div>
-                  <h3 className="text-xs font-bold text-gray-900">Senior UX Designer</h3>
-                  <div className="text-[11px] font-semibold text-gray-700">Company Name</div>
-                  <p className="text-[11px] text-gray-600">
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                  </p>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          </section>
-
-          {/* SKILLS */}
-          <section className="space-y-4">
-            <h2 className="text-sm font-black tracking-widest uppercase text-gray-900">
-              Skills
-            </h2>
-            <div className="w-8 h-0.5" style={{ backgroundColor: accentColor }} />
-            
-            <div className="grid grid-cols-2 gap-4">
-              {skills && skills.length > 0 ? (
-                skills.map((skill) => (
-                  <div key={skill.id} className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-gray-800">{skill.name}</span>
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full bg-gray-200" />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-gray-800">Photoshop</span>
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full bg-gray-200" />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-gray-800">Illustrator</span>
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-                      <span className="w-2 h-2 rounded-full bg-gray-200" />
-                      <span className="w-2 h-2 rounded-full bg-gray-200" />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </section>
+          )}
 
         </div>
 
+        <div className="text-[10px] text-gray-500 text-center pb-2">
+          CVRD.DO
+        </div>
       </div>
 
-      {/* FRANJA INFERIOR DECORATIVA */}
-      <div className="w-4 h-2 mt-8 mx-auto" style={{ backgroundColor: accentColor }} />
+      {/* ================= COLUMNA DERECHA (Contenido Principal) ================= */}
+      <div className="flex-1 h-full flex flex-col justify-between p-8 bg-white overflow-hidden text-[12px]">
+        <div className="flex flex-col space-y-6">
+          
+          {/* Encabezado Principal (Nombre imponente horizontal: 10% más grande, Bold + Regular) */}
+          <div className="border-b-2 border-[#d6cfc7] pb-4">
+            <h1 className="tracking-tight leading-none uppercase flex flex-wrap gap-x-3 items-baseline" style={{ fontSize: '44px' }}>
+              <span className="font-bold text-gray-900">{firstName}</span>
+              <span className="font-light text-gray-600">{lastName}</span>
+            </h1>
+            <p className="text-[12px] font-bold uppercase tracking-widest mt-2 text-[#78614e]">
+              {personal?.title || 'DISEÑADORA'}
+            </p>
+          </div>
 
+          {/* Educación (Estilo horizontal, antes de experiencia) */}
+          {education && education.length > 0 && (
+            <div className="space-y-2 text-[12px]">
+              <div className="flex items-center gap-2 bg-[#f4f1ea] px-3 py-1.5 rounded-sm">
+                <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+                <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                  Educación
+                </h3>
+              </div>
+              <div className="space-y-3 pt-1">
+                {education.map((edu) => (
+                  <div key={edu.id} className="space-y-0.5">
+                    <div className="flex justify-between items-baseline">
+                      <h4 className="font-bold text-gray-900 text-[12px]">{edu.degree}</h4>
+                      <span className="text-gray-500 font-semibold text-[12px]">{edu.startDate} - {edu.endDate}</span>
+                    </div>
+                    <p className="text-gray-600 text-[12px]">{edu.institution}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Experiencia Profesional */}
+          {experience && experience.length > 0 && (
+            <div className="space-y-2 text-[12px]">
+              <div className="flex items-center gap-2 bg-[#f4f1ea] px-3 py-1.5 rounded-sm">
+                <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+                <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                  Experiencia Profesional
+                </h3>
+              </div>
+              <div className="space-y-4 pt-1">
+                {experience.map((exp) => (
+                  <div key={exp.id} className="space-y-1">
+                    <div className="flex justify-between items-baseline">
+                      <h4 className="font-bold text-gray-900 text-[12px]">{exp.role}</h4>
+                      <span className="text-gray-500 font-semibold text-[12px]">{exp.startDate} - {exp.endDate}</span>
+                    </div>
+                    <p className="font-bold text-gray-700 text-[12px]">{exp.company}</p>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line text-[12px] text-justify">{exp.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Referencias Personales (Completas y visibles) */}
+          {references && references.length > 0 && (
+            <div className="space-y-2 text-[12px]">
+              <div className="flex items-center gap-2 bg-[#f4f1ea] px-3 py-1.5 rounded-sm">
+                <span className="w-3 h-3 border border-[#78614e] bg-white inline-block shrink-0"></span>
+                <h3 className="font-black uppercase tracking-wider text-gray-900 text-[12px]">
+                  Referencias
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                {references.map((ref) => (
+                  <div key={ref.id} className="space-y-0.5 text-[12px] border-l-2 border-[#78614e] pl-2.5">
+                    <p className="font-bold text-gray-900">{ref.name}</p>
+                    <p className="text-gray-600">{ref.position} - {ref.company}</p>
+                    <p className="text-gray-500">Tel: {ref.phone}</p>
+                    {ref.email && <p className="text-gray-500">Correo: {ref.email}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Pie de página */}
+        <div className="text-right text-[10px] text-gray-400 pt-2 border-t border-gray-200">
+          CVRD.DO — Plantilla Ejecutiva Estilo Referencia
+        </div>
+      </div>
     </div>
   );
 }

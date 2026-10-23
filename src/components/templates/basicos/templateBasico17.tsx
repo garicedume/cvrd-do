@@ -19,11 +19,12 @@ export default function TemplateAtsClassic({ data }: Props) {
 
   const accentColor = styles?.accentColor || '#1F2937';
 
+  // Tamaños estandarizados a 12px para todo el contenido (excepto el nombre)
   const fs = {
     base: '12px',
-    small: '11px',
-    tiny: '10px',
-    h3: '11px',
+    small: '12px',
+    tiny: '12px',
+    h3: '12px',
     sidebarH3: '12px',
   };
 
@@ -104,7 +105,7 @@ export default function TemplateAtsClassic({ data }: Props) {
                     {skills.map((skill) => (
                       <li key={skill.id} className="text-gray-200 font-medium flex items-center justify-between" style={{ fontSize: fs.small }}>
                         <span>• {skill.name}</span>
-                        {skill.level && <span className="text-gray-400 text-[10px]">({skill.level})</span>}
+                        {skill.level && <span className="text-gray-400 text-[12px]">({skill.level})</span>}
                       </li>
                     ))}
                   </ul>
