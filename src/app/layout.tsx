@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { AuthProvider } from "@/context/AuthContext"; // <--- 1. Importamos el AuthProvider
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -60,14 +61,17 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${poppins.variable} font-sans bg-gray-100 text-gray-900 antialiased flex flex-col min-h-screen`}>
-        {/* El Header conectado globalmente */}
-        <Header />
-        
-        {/* Contenido principal de la página */}
-        <main className="flex-1">{children}</main>
-        
-        {/* El Footer conectado globalmente */}
-        <Footer />
+        {/* <--- 2. Envolvemos todo dentro del AuthProvider */}
+        <AuthProvider>
+          {/* El Header conectado globalmente */}
+          <Header />
+          
+          {/* Contenido principal de la página */}
+          <main className="flex-1">{children}</main>
+          
+          {/* El Footer conectado globalmente */}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

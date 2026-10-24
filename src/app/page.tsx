@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -17,17 +17,24 @@ import AuthorizedLogosTicker from '@/components/ui/AuthorizedLogosTicker';
 import { ImportBanner } from '@/components/ui/ImportBanner';
 import { ImportCVModal } from '@/components/builder/ImportCVModal';
 
-// COMPONENTE DE NIEVE NAVIDEÑA OPTIMIZADO (FIJO EN TODA LA PANTALLA)
+// COMPONENTE DE NIEVE NAVIDEÑA (BLINDADO CONTRA ERRORES DE SSR)
 function SnowEffect() {
+  const [mounted, setMounted] = useState(false);
   const snowflakes = Array.from({ length: 40 });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
       {snowflakes.map((_, i) => {
         const randomLeft = Math.random() * 100;
-        const randomAnimationDuration = 6 + Math.random() * 8; // Entre 6s y 14s (caída suave)
+        const randomAnimationDuration = 6 + Math.random() * 8;
         const randomDelay = Math.random() * 5; 
-        const randomSize = 4 + Math.random() * 4; // Entre 4px y 8px
+        const randomSize = 4 + Math.random() * 4;
 
         return (
           <span
@@ -70,7 +77,7 @@ function SnowEffect() {
   );
 }
 
-// Inicializar cliente de Supabase (reemplaza o usa tus variables de entorno)
+// Inicializar cliente de Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'TU_SUPABASE_URL';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'TU_SUPABASE_ANON_KEY';
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -113,52 +120,6 @@ export default function HomePage() {
     }
   };
 
-  // Función de Subida y Seguridad 200% para CVs (Anti-spam, Tamaño max 5MB, Tipos MIME reales)
-  const handleSeguridadCvUpload = async (file: File, datos: { nombre: string, telefono: string, email: string }) => {
-    // 1. Validación estricta de tamaño (Máximo 5MB)
-    const MAX_SIZE = 5 * 1024 * 1024;
-    if (file.size > MAX_SIZE) {
-      throw new Error("El archivo excede el límite permitido de 5MB.");
-    }
-
-    // 2. Validación de Tipo MIME real
-    const allowedTypes = [
-      'application/pdf', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      throw new Error("Formato no válido. Solo se permiten archivos PDF o Word (.docx).");
-    }
-
-    // 3. Generar nombre único seguro para evitar colisiones o archivos maliciosos
-    const fileExt = file.name.split('.').pop();
-    const safeFileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `public/${safeFileName}`;
-
-    // 4. Subir al bucket privado 'cvs' en Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from('cvs')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    // 5. Guardar registro en la tabla protegida por RLS
-    const { error: dbError } = await supabase
-      .from('postulaciones')
-      .insert([
-        { 
-          nombre: datos.nombre, 
-          telefono: datos.telefono, 
-          email: datos.email, 
-          cv_url: filePath 
-        }
-      ]);
-
-    if (dbError) throw dbError;
-
-    return true;
-  };
-
   const reseñas = [
     {
       id: 1,
@@ -193,7 +154,7 @@ export default function HomePage() {
       onDragStart={(e) => e.preventDefault()}
     >
       
-      {/* EFECTO DE NIEVE GLOBAL (Flota sobre toda la página) */}
+      {/* EFECTO DE NIEVE INTACTO */}
       <SnowEffect />
 
       {/* FRANJA 1: HERO SECTION */}
@@ -268,6 +229,7 @@ export default function HomePage() {
                     alt="Muestra de CV Profesional CVRD"
                     fill
                     priority
+                    sizes="(max-width: 768px) 100vw, 400px"
                     className="object-cover object-top pointer-events-none select-none"
                   />
                 </div>
@@ -318,7 +280,7 @@ export default function HomePage() {
                 <span className="text-xs text-gray-500 font-mono font-bold">USD $5.00</span>
               </div>
               <div className="relative aspect-8.5/11 w-full rounded-xl overflow-hidden bg-gray-100 mb-4 border border-gray-100">
-                <Image src="/template_executive.jpg" alt="Executive Gold" fill className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
+                <Image src="/template_executive.jpg" alt="Executive Gold" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg">Executive Gold</h3>
               <p className="text-xs text-gray-500 mt-1">Estructura ejecutiva dorada optimizada para puestos de liderazgo y gerencia.</p>
@@ -337,7 +299,7 @@ export default function HomePage() {
                 <span className="text-xs text-gray-500 font-mono font-bold">USD $2.00</span>
               </div>
               <div className="relative aspect-8.5/11 w-full rounded-xl overflow-hidden bg-gray-100 mb-4 border border-gray-100">
-                <Image src="/template_ats.jpg" alt="ATS Minimal" fill className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
+                <Image src="/template_ats.jpg" alt="ATS Minimal" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg">ATS Minimal</h3>
               <p className="text-xs text-gray-500 mt-1">Diseño de alta legibilidad diseñado para lecturas automatizadas y filtros ATS.</p>
@@ -356,7 +318,7 @@ export default function HomePage() {
                 <span className="text-xs text-gray-500 font-mono font-bold">USD $5.00</span>
               </div>
               <div className="relative aspect-8.5/11 w-full rounded-xl overflow-hidden bg-gray-100 mb-4 border border-gray-100">
-                <Image src="/template_slate.jpg" alt="Corporate Arch" fill className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
+                <Image src="/template_slate.jpg" alt="Corporate Arch" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover object-top group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none" />
               </div>
               <h3 className="font-bold text-gray-900 text-lg">Corporate Arch</h3>
               <p className="text-xs text-gray-500 mt-1">Líneas contemporáneas con base en arco para profesionales y técnicos destacados.</p>
