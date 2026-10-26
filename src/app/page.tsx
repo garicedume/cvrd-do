@@ -250,7 +250,7 @@ export default function HomePage() {
 
       {/* BANNER DE IMPORTACIÓN RÁPIDA EN INICIO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ImportBanner onOpenModal={() => setIsImportModalOpen(true)} />
+   <ImportBanner />
       </section>
 
       {/* FRANJA PROMOCIONAL 01 */}

@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/context/AuthContext"; // <--- 1. Importamos el AuthProvider
+import { GlobalChatWidget } from "@/components/ui/GlobalChatWidget"; // 🤖 Reclutador Virtual Global
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -71,6 +72,9 @@ export default function RootLayout({
           
           {/* El Footer conectado globalmente */}
           <Footer />
+
+          {/* Reclutador Virtual Flotante Global */}
+          <GlobalChatWidget />
         </AuthProvider>
       </body>
     </html>

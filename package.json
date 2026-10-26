@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^2.31.0",
     "@paypal/react-paypal-js": "^10.6.0",
     "@react-pdf/renderer": "^4.9.0",
     "@supabase/supabase-js": "^2.117.2",
+    "html2canvas": "^1.4.1",
     "html2canvas-pro": "^2.5.2",
     "html2pdf.js": "^0.14.0",
     "jspdf": "^4.2.1",
