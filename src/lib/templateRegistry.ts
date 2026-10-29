@@ -81,6 +81,14 @@ export const SAMPLE_CV_DATA: CVData = {
       endDate: 'Presente',
       description: '• Liderazgo técnico de un equipo multidisciplinario de 8 desarrolladores.\n• Optimización de arquitectura backend reduciendo tiempos de respuesta un 40%.\n• Implementación de procesos automatizados de despliegue cloud en AWS y Vercel.',
     },
+    {
+      id: 'exp2',
+      company: 'Soluciones Digitales del Caribe',
+      role: 'Desarrollador Full Stack Senior',
+      startDate: '2019',
+      endDate: '2022',
+      description: '• Desarrollo de aplicaciones web interactivas utilizando React, Next.js y Node.js.\n• Integración de pasarelas de pago locales e internacionales (Stripe, PayPal).\n• Reducción de incidencias de producción en un 25% mediante pruebas automatizadas.',
+    },
   ],
   education: [
     {
@@ -90,14 +98,36 @@ export const SAMPLE_CV_DATA: CVData = {
       startDate: '2020',
       endDate: '2022',
     },
+    {
+      id: 'edu2',
+      institution: 'Pontificia Universidad Católica Madre y Maestra (PUCMM)',
+      degree: 'Ingeniería en Sistemas y Computación',
+      startDate: '2015',
+      endDate: '2019',
+    },
+    {
+      id: 'edu3',
+      institution: 'Politécnico ITLA',
+      degree: 'Certificación Avanzada en Redes y Bases de Datos',
+      startDate: '2014',
+      endDate: '2015',
+    },
   ],
   skills: [
     { id: 's1', name: 'TypeScript / JavaScript', level: 'Experto', type: 'técnica' },
     { id: 's2', name: 'React.js & Next.js', level: 'Experto', type: 'técnica' },
+    { id: 's3', name: 'Node.js & Express', level: 'Avanzado', type: 'técnica' },
+    { id: 's4', name: 'Tailwind CSS & UI/UX', level: 'Avanzado', type: 'técnica' },
+    { id: 's5', name: 'SQL & PostgreSQL', level: 'Avanzado', type: 'técnica' },
+    { id: 's6', name: 'Git & GitHub Actions', level: 'Experto', type: 'técnica' },
+    { id: 's7', name: 'Docker & Cloud Deployment', level: 'Intermedio', type: 'técnica' },
+    { id: 's8', name: 'Liderazgo de Equipos', level: 'Experto', type: 'blanda' },
+    { id: 's9', name: 'Resolución de Conflictos', level: 'Avanzado', type: 'blanda' },
   ],
   languages: [
     { id: 'l1', name: 'Español', level: 'Nativo' },
     { id: 'l2', name: 'Inglés', level: 'Profesional / B2' },
+    { id: 'l3', name: 'Portugués', level: 'Intermedio / B1' },
   ],
   references: [
     {
@@ -108,11 +138,20 @@ export const SAMPLE_CV_DATA: CVData = {
       phone: '+1 (809) 555-7890',
       email: 'roberto.almonte@techcorp.do',
     },
+    {
+      id: 'ref2',
+      name: 'Dra. Mariela Peguero',
+      company: 'INTEC',
+      position: 'Decana de la Facultad de Ingenierías',
+      phone: '+1 (809) 555-4321',
+      email: 'mariela.peguero@intec.edu.do',
+    },
   ],
   extras: {
     linkedin: 'linkedin.com/in/carlosmendozard',
     customLinks: [
       { label: 'GitHub', url: 'github.com/carlosmendoza-dev', urlLine2: 'Repositorio personal' },
+      { label: 'Portafolio Web', url: 'carlosmendoza.dev', urlLine2: 'Proyectos destacados' },
     ],
   },
   styles: {
@@ -121,7 +160,7 @@ export const SAMPLE_CV_DATA: CVData = {
   },
 } as any;
 
-// --- DICCIONARIO DE MAPEO CORREGIDO Y ALINEADO ---
+// --- DICCIONARIO DE MAPEO ---
 export const TEMPLATE_COMPONENTS: Record<string, React.FC<{ data: CVData }>> = {
   // 1. Básicos (01 al 25)
   templateBasico01: templateBasico01 as React.FC<{ data: CVData }>,
@@ -150,17 +189,17 @@ export const TEMPLATE_COMPONENTS: Record<string, React.FC<{ data: CVData }>> = {
   templateBasico24: templateBasico24 as React.FC<{ data: CVData }>,
   templateBasico25: templateBasico25 as React.FC<{ data: CVData }>,
 
-  // 2. Premium (Alineados con sus nombres de archivo exactos)
-  TemplateBrandDesigner: TemplateBrandDesigner as React.FC<{ data: CVData }>,
-  TemplateConsultingSenior: TemplateConsultingSenior as React.FC<{ data: CVData }>,
-  TemplateCreativeDirector: TemplateCreativeDirector as React.FC<{ data: CVData }>,
-  TemplateDataScienceElite: TemplateDataScienceElite as React.FC<{ data: CVData }>,
-  TemplateExecutiveLeadership: TemplateExecutiveLeadership as React.FC<{ data: CVData }>,
-  TemplateFullStackArchitect: TemplateFullStackArchitect as React.FC<{ data: CVData }>,
-  TemplateMarketingGrowth: TemplateMarketingGrowth as React.FC<{ data: CVData }>,
-  TemplateOperationsDirector: TemplateOperationsDirector as React.FC<{ data: CVData }>,
-  TemplateProductManager: TemplateProductManager as React.FC<{ data: CVData }>,
-  TemplateTechLeadPro: TemplateTechLeadPro as React.FC<{ data: CVData }>,
+  // 2. Premium
+  CorporateArchTemplate: TemplateBrandDesigner as React.FC<{ data: CVData }>,
+  DarkMonolithTemplate: TemplateConsultingSenior as React.FC<{ data: CVData }>,
+  ExecutiveGoldTemplate: TemplateCreativeDirector as React.FC<{ data: CVData }>,
+  FintechAnalyticsTemplate: TemplateDataScienceElite as React.FC<{ data: CVData }>,
+  MinimalLuxeTemplate: TemplateExecutiveLeadership as React.FC<{ data: CVData }>,
+  NordicMinimalTemplate: TemplateFullStackArchitect as React.FC<{ data: CVData }>,
+  PortfolioShowcaseTemplate: TemplateMarketingGrowth as React.FC<{ data: CVData }>,
+  SeniorConsultantTemplate: TemplateOperationsDirector as React.FC<{ data: CVData }>,
+  StrategicDirectorTemplate: TemplateProductManager as React.FC<{ data: CVData }>,
+  StudioHorizonTemplate: TemplateTechLeadPro as React.FC<{ data: CVData }>,
 
   // 3. Master
   TemplateMasterApexExecutive: TemplateMasterApexExecutive as React.FC<{ data: CVData }>,
