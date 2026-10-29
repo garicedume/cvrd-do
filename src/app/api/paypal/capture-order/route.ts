@@ -21,6 +21,15 @@ async function getAccessToken() {
 export async function POST(req: Request) {
   try {
     const { orderID } = await req.json();
+
+    // 🛡️ Validación estricta: si no hay orderID, rechazamos la petición de inmediato
+    if (!orderID) {
+      return NextResponse.json(
+        { success: false, error: 'Falta el ID de la orden de PayPal' }, 
+        { status: 400 }
+      );
+    }
+
     const accessToken = await getAccessToken();
 
     const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderID}/capture`, {
@@ -32,9 +41,24 @@ export async function POST(req: Request) {
     });
 
     const captureData = await response.json();
-    return NextResponse.json(captureData);
+
+    // 🛡️ Validación de seguridad: Verificar que PayPal completó la transacción con éxito
+    if (captureData.status === 'COMPLETED') {
+      return NextResponse.json({
+        success: true,
+        status: 'COMPLETED',
+        details: captureData
+      });
+    } else {
+      return NextResponse.json({
+        success: false,
+        error: 'El pago no pudo ser completado o fue rechazado por la pasarela.',
+        details: captureData
+      }, { status: 400 });
+    }
+
   } catch (error) {
     console.error('Error al capturar la orden:', error);
-    return NextResponse.json({ error: 'No se pudo completar el pago' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'No se pudo completar el pago' }, { status: 500 });
   }
 }

@@ -35,7 +35,8 @@ export const ImportBanner: React.FC<ImportBannerProps> = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/parse-cv', {
+      // CORREGIDO: Ruta alineada con tu endpoint actual (/api/ai/parse-cv)
+      const response = await fetch('/api/ai/parse-cv', {
         method: 'POST',
         body: formData,
       });
@@ -45,14 +46,17 @@ export const ImportBanner: React.FC<ImportBannerProps> = () => {
 
       if (result.success) {
         setProgressStep(steps.length - 1);
-        localStorage.setItem('importedCVData', JSON.stringify(result.parsedData));
+        
+        // CORREGIDO: Guardado con la clave que lee automáticamente el editor ('cvrd_saved_cv_data')
+        localStorage.setItem('cvrd_saved_cv_data', JSON.stringify(result.data || result.parsedData));
+        
         setTimeout(() => {
           window.location.href = '/builder?imported=true';
         }, 800);
       } else {
         clearInterval(interval);
         setIsUploading(false);
-        alert('Error al procesar el archivo: ' + result.error);
+        alert('Error al procesar el archivo: ' + (result.error || 'Desconocido'));
       }
     } catch (error) {
       clearInterval(interval);

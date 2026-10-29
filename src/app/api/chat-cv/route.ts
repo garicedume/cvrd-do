@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
+        success: true,
         reply: "¡Hola! Soy tu Reclutador Virtual de CVRD.DO. ¿Cuál es tu nombre completo y a qué te dedicas para armar tu CV?" 
       });
     }
@@ -29,12 +30,15 @@ export async function POST(request: Request) {
       }))
     ];
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: formattedMessages,
-        generationConfig: { temperature: 0.7 }
+        generationConfig: { 
+          temperature: 0.7,
+          maxOutputTokens: 8192 // 👈 Previene cortes en la conversación
+        }
       })
     });
 
@@ -43,8 +47,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, reply });
 
-  } catch (error: any) {
-    console.error('Error en chat:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('Error en chat:', errorMessage);
     return NextResponse.json({ 
       success: true, 
       reply: "¡Hola! Estoy aquí para ayudarte a armar tu CV paso a paso. ¿Cómo te llamas y cuál es tu profesión?" 

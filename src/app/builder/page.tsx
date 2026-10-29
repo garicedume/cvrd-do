@@ -7,23 +7,49 @@ import { TEMPLATE_COMPONENTS } from '@/lib/templateRegistry';
 import { TEMPLATES_LIST } from '@/lib/templatesData';
 import { Download, CheckCircle, ArrowRight, LayoutTemplate, Upload, Trash2, ShieldCheck, Eye, Edit3, X, ChevronDown, Check, Sparkles } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import dynamic from 'next/dynamic';
-import { CVDocument } from '@/components/pdf/CVDocument';
 import { useAuth } from '@/context/AuthContext';
 
 
-function PrintDownloadButton() {
-  const handlePrint = () => {
-    window.print();
+// Componente de descarga automática en servidor (Ultra HD con Puppeteer)
+function ServerPDFDownloadButton({ cvData, templateKey }: { cvData: CVData; templateKey: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/download-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cvData, templateKey }),
+      });
+
+      if (!res.ok) throw new Error('Error al generar el PDF en el servidor');
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CV_${cvData.personal.fullName ? cvData.personal.fullName.replace(/\s+/g, '_') : 'Curriculum'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert('Ocurrió un error al procesar la descarga automática.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <button
-      onClick={handlePrint}
-      className="w-full py-3.5 bg-gray-900 hover:bg-amber-400 hover:text-gray-950 text-white font-black text-xs rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer print:hidden"
+      onClick={handleDownload}
+      disabled={loading}
+      className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
     >
       <Download className="w-4 h-4" />
-      <span>Descargar CV Profesional (PDF HD)</span>
+      <span>{loading ? 'Generando PDF en Ultra HD...' : 'Descargar CV Automático (Ultra HD)'}</span>
     </button>
   );
 }
@@ -59,9 +85,6 @@ function BuilderContent() {
   const [mobileViewMode, setMobileViewMode] = useState<'editor' | 'preview'>('editor');
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
-
-  const [promoInput, setPromoInput] = useState<string>('');
-  const [promoError, setPromoError] = useState<string | null>(null);
 
   const templateFromUrl = searchParams.get('template');
   const selectedTemplateKey = templateFromUrl || 'TemplateLaura';
@@ -132,30 +155,6 @@ function BuilderContent() {
     }
     return true;
   });
-
-  const handleApplyPromoCode = async () => {
-    try {
-      const response = await fetch('/api/verify-promo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: promoInput }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setPromoError(null);
-        setShowPaymentModal(false);
-        setShowSuccessModal(true);
-        router.replace(`/builder?template=${selectedTemplateKey}&unlocked=true`, { scroll: false });
-      } else {
-        setPromoError('Código promocional no válido.');
-      }
-    } catch (err) {
-      console.error('Error al validar código:', err);
-      setPromoError('Ocurrió un error al validar el código.');
-    }
-  };
 
   // FUNCIÓN DE AYUDA CON IA PARA EL PERFIL PROFESIONAL
   const handleAiProfileHelp = async () => {
@@ -804,7 +803,7 @@ function BuilderContent() {
                   + Añadir Referencia
                 </button>
               </div>
-              {cvData.references.map((ref, idx) => (
+              {(cvData.references || []).map((ref, idx) => (
                 <div key={ref.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-amber-600">REFERENCIA #{idx + 1}</span>
@@ -1113,7 +1112,7 @@ function BuilderContent() {
         </div>
       )}
 
-      {/* MODAL DE PAYPAL CON CÓDIGO PROMOCIONAL */}
+      {/* MODAL DE PAYPAL (LIMPIO SIN CUPONES) */}
       {showPaymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 print:hidden">
           <div className="bg-[#0f0f11] text-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-gray-800 animate-in fade-in zoom-in duration-200">
@@ -1171,31 +1170,6 @@ function BuilderContent() {
               </PayPalScriptProvider>
             </div>
 
-            <div className="pt-4 border-t border-gray-800 space-y-2">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-gray-300 uppercase">
-                <span>¿Tienes un código promocional?</span>
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Introduce tu código"
-                  value={promoInput}
-                  onChange={(e) => setPromoInput(e.target.value)}
-                  className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-bold focus:outline-none focus:border-amber-500"
-                />
-                <button
-                  type="button"
-                  onClick={handleApplyPromoCode}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs rounded-xl transition cursor-pointer"
-                >
-                  Aplicar
-                </button>
-              </div>
-              {promoError && (
-                <p className="text-[11px] text-red-500 font-semibold">{promoError}</p>
-              )}
-            </div>
-
             <div className="text-center pt-2 border-t border-gray-800/60">
               <button
                 onClick={() => setShowPaymentModal(false)}
@@ -1219,13 +1193,13 @@ function BuilderContent() {
             <div className="space-y-2">
               <h3 className="text-xl font-black text-gray-900">¡Acceso Concedido con Éxito!</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Tu currículum está listo para descargarse en formato vectorial HD de alta calidad con la plantilla seleccionada.
+                Tu currículum está listo para descargarse en formato Ultra HD con la plantilla seleccionada.
               </p>
             </div>
 
             <div className="space-y-2 pt-2">
               {hasAccess ? (
-                <PrintDownloadButton />
+                <ServerPDFDownloadButton cvData={cvData} templateKey={selectedTemplateKey} />
               ) : (
                 <button
                   onClick={() => {
@@ -1253,47 +1227,12 @@ function BuilderContent() {
         @media print {
           body {
             background: white !important;
-            margin: 0 !important;
-            padding: 0 !important;
           }
-          /* Oculta absolutamente todo lo que no sea el currículum */
-          .print\:hidden, 
-          nav, 
-          header, 
-          footer, 
-          aside, 
-          button,
-          div[class*="fixed"] {
+          .print\:hidden {
             display: none !important;
-          }
-          /* Forzar al contenedor del CV a ocupar una hoja carta exacta sin recortes */
-          #cv-print-container {
-            display: block !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 816px !important;
-            height: 1056px !important;
-            transform: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-          }
-          @page {
-            size: letter portrait;
-            margin: 0mm;
           }
         }
       `}</style>
-¿Por qué esto resuelve el problema al 100%?
-Compatibilidad total con tus 50 plantillas: Como imprime directamente el componente web activo (ActiveTemplateComponent), da igual si el usuario elige la plantilla Laura, una básica, una premium o una master; el resultado impreso será exactamente idéntico a lo que ve en la pantalla.
-
-Adiós a las discrepancias: Respeta al 100% las fuentes de Google Fonts, los colores hexadecimales personalizados, la forma de la foto (círculo, cuadrado, ovalado) y la distribución de los textos.
-
-Cero mantenimiento duplicado: No tienes que programar 50 plantillas de nuevo en otro lenguaje.
-
-Haz este cambio en tu archivo page.tsx, guarda, recarga tu servidor de desarrollo y prueba descargar tu currículum. ¡Vas a ver que por fin el PDF sale impecable y tal cual lo diseñaste! 🚀
 
     </div>
   );
