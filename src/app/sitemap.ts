@@ -1,14 +1,14 @@
 import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://tucvhoy.com';
+  const baseUrl = 'https://www.tucvhoy.com';
 
-  // Páginas principales estáticas de la plataforma
+  // 1. Páginas estáticas principales de la plataforma
   const staticPages = [
     '',
-    '/templates', // O la ruta donde muestras las plantillas
-    '/features',   // Si tienes sección de características
-    '/pricing',    // Si aplica
+    '/templates', 
+    '/features',   
+    '/pricing',    
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
@@ -16,8 +16,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : 0.8,
   }));
 
-  // Aquí más adelante puedes agregar dinámicamente tus plantillas si vienen de una base de datos o array
-  // const templates = [...]
+  // 2. Páginas/Plantillas dinámicas (Ejemplo: tus plantillas de CV)
+  // Aquí puedes reemplazar este array simulado con una llamada a tu base de datos o API (ej. await db.templates.findMany())
+  const templates = [
+    'executive',
+    'modern',
+    'minimalist',
+    'professional',
+    'creative',
+  ];
 
-  return [...staticPages];
+  const dynamicTemplates = templates.map((slug) => ({
+    url: `${baseUrl}/templates/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.9, // Alta prioridad porque aquí es donde los usuarios eligen y crean
+  }));
+
+  // Combinamos ambas listas en un solo sitemap
+  return [...staticPages, ...dynamicTemplates];
 }
