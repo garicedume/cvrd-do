@@ -3,8 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { AuthProvider } from "@/context/AuthContext"; // <--- 1. Importamos el AuthProvider
-import { GlobalChatWidget } from "@/components/ui/GlobalChatWidget"; // 🤖 Reclutador Virtual Global
+import { AuthProvider } from "@/context/AuthContext";
+import { GlobalChatWidget } from "@/components/ui/GlobalChatWidget";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -13,7 +13,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://cvrd.do'),
+  metadataBase: new URL('https://tucvhoy.com'),
   title: {
     default: "CVRD.DO — Constructor de CVs Profesionales en República Dominicana",
     template: "%s | CVRD.DO"
@@ -24,12 +24,13 @@ export const metadata: Metadata = {
     'currículum vitae Santo Domingo', 
     'plantillas de CV ATS', 
     'hacer currículum online RD', 
-    'formato carta CV'
+    'formato carta CV',
+    'tucvhoy'
   ],
   openGraph: {
     type: 'website',
     locale: 'es_DO',
-    url: 'https://cvrd.do',
+    url: 'https://tucvhoy.com',
     title: 'CVRD.DO — Constructor de CVs Profesionales en RD',
     description: 'Diseñamos el CV que te consigue el empleo en República Dominicana. Descarga inmediata en PDF.',
     siteName: 'CVRD.DO',
@@ -52,6 +53,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    // Aquí pondremos el código que nos dé Google Search Console más adelante
+    google: '',
+  },
 };
 
 export default function RootLayout({
@@ -62,18 +67,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${poppins.variable} font-sans bg-gray-100 text-gray-900 antialiased flex flex-col min-h-screen`}>
-        {/* <--- 2. Envolvemos todo dentro del AuthProvider */}
         <AuthProvider>
-          {/* El Header conectado globalmente */}
           <Header />
-          
-          {/* Contenido principal de la página */}
           <main className="flex-1">{children}</main>
-          
-          {/* El Footer conectado globalmente */}
           <Footer />
-
-          {/* Reclutador Virtual Flotante Global */}
           <GlobalChatWidget />
         </AuthProvider>
       </body>
