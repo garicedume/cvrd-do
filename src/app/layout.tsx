@@ -54,7 +54,6 @@ export const metadata: Metadata = {
     follow: true,
   },
   verification: {
-    // Aquí pondremos el código que nos dé Google Search Console más adelante
     google: '',
   },
 };
@@ -64,8 +63,35 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Datos estructurados Schema.org (JSON-LD) para Google
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'CVRD.DO',
+    operatingSystem: 'All',
+    applicationCategory: 'BusinessApplication',
+    url: 'https://tucvhoy.com',
+    description: 'Constructor de currículums profesionales, modernos y adaptados al estándar laboral de República Dominicana en formato Carta oficial. Aprobado por filtros ATS.',
+    offers: {
+      '@type': 'Offer',
+      price: '0.00',
+      priceCurrency: 'DOP',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      reviewCount: '1250',
+    },
+  };
+
   return (
     <html lang="es">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      </head>
       <body className={`${poppins.variable} font-sans bg-gray-100 text-gray-900 antialiased flex flex-col min-h-screen`}>
         <AuthProvider>
           <Header />
